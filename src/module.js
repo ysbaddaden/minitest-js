@@ -5,6 +5,16 @@ var Module = function (name) {
     this.teardown = null;
 };
 
+Module.Test = function (name, callback, async) {
+    this.name = name;
+    this.async = async || false;
+    this.callback = callback;
+};
+
+Module.Test.prototype.run = function (ctx) {
+    this.callback.call(ctx);
+};
+
 Module.prototype.add = function (test) {
     this.tests.push(test);
 };
@@ -17,22 +27,22 @@ Module.prototype.run = function () {
 };
 
 Module.prototype.runNextTest = function () {
-    var test = this.test = this.tests.shift();
-    if (test) {
+    this.test = this.tests.shift();
+    if (this.test) {
         this.ctx = {};
         try {
             if (typeof this.setup === 'function') {
                 this.setup.call(this.ctx);
             }
-            test.run(this.ctx);
-            if (!test.async) {
+            this.test.run(this.ctx);
+            if (!this.test.async) {
                 this.completed();
             }
         } catch (ex) {
-            if (ex._type === 'AssertionError') {
-                report.fail(test.name, ex);
+            if (ex instanceof assert.AssertionError) {
+                report.fail(this.test.name, ex);
             } else {
-                report.error(test.name, ex);
+                report.error(this.test.name, ex);
             }
         }
     }
@@ -48,5 +58,9 @@ Module.prototype.completed = function () {
         }
     }
     this.runNextTest();
+};
+
+Module.prototype.hasCompleted = function () {
+    return this.test === undefined;
 };
 

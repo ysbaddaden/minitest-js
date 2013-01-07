@@ -7,7 +7,19 @@ Object.inspect = function (object) {
         if (object === null) {
             return 'null';
         }
-        return object.inspect ? object.inspect() : String(object);
+        if (object.inspect) {
+            return object.inspect();
+        }
+        if (typeof object === 'object') {
+            var ary = [];
+            for (var key in object) {
+                if (object.hasOwnProperty(key)) {
+                    ary.push(key + ': ' + Object.inspect(object[key]));
+                }
+            }
+            return '{' + ary.join(', ') + '}';
+        }
+        return String(object);
     } catch (e) {
         if (e instanceof RangeError) {
             return '...';
@@ -17,7 +29,12 @@ Object.inspect = function (object) {
 };
 
 Array.prototype.inspect = function () {
-    return '[' + this.map(Object.inspect).join(', ') + ']';
+    //return '[' + this.map(Object.inspect).join(', ') + ']';
+    var ary = [];
+    for (var i = 0, l = this.length; i < l; i++) {
+        ary.push(Object.inspect(this[i]));
+    }
+    return '[' + ary.join(', ') + ']';
 };
 
 String.specialChar = {

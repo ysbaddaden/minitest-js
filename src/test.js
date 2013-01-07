@@ -1,10 +1,14 @@
-var Test = function (name, callback, async) {
-    this.name = name;
-    this.async = async || false;
-    this.callback = callback;
-};
+var test = {};
 
-Test.prototype.run = function (ctx) {
-    this.callback.call(ctx);
+test.run = function (tests) {
+    for (var name in tests) {
+        if (tests.hasOwnProperty(name) && name !== 'test' && /^test/.test(name)) {
+            if (typeof tests[name] === 'function') {
+                unit.test(name, tests[name]);
+            } else {
+                test.run(tests[name]);
+            }
+        }
+    }
+    unit.run();
 };
-

@@ -7,7 +7,19 @@ Object.inspect = function (object) {
         if (object === null) {
             return 'null';
         }
-        return object.inspect ? object.inspect() : String(object);
+        if (object.inspect) {
+            return object.inspect();
+        }
+        if (typeof object === 'object') {
+            var ary = [];
+            for (var key in object) {
+                if (object.hasOwnProperty(key)) {
+                    ary.push(key + ': ' + Object.inspect(object[key]));
+                }
+            }
+            return '{' + ary.join(', ') + '}';
+        }
+        return String(object);
     } catch (e) {
         if (e instanceof RangeError) {
             return '...';
@@ -17,7 +29,12 @@ Object.inspect = function (object) {
 };
 
 Array.prototype.inspect = function () {
-    return '[' + this.map(Object.inspect).join(', ') + ']';
+    //return '[' + this.map(Object.inspect).join(', ') + ']';
+    var ary = [];
+    for (var i = 0, l = this.length; i < l; i++) {
+        ary.push(Object.inspect(this[i]));
+    }
+    return '[' + ary.join(', ') + ']';
 };
 
 String.specialChar = {
@@ -48,55 +65,126 @@ Number.prototype.toPaddedString = function (length, radix) {
     return '0'.times(length - string.length) + string;
 };
 var assert = (function () {
-    var AssertionError = function (message) {
-        var err = new Error(message);
-        err._type = 'AssertionError';
-        return err;
-    };
+    var assert = {};
 
-    var fail = function (tpl, args, message) {
-        var x = tpl.replace(/<>/g, function (m) {
-            return Object.inspect(args.shift());
-        });
+    if (!Object.keys) {
+        Object.keys = function (o) {
+            var ary = [];
+            for (var k in o) {
+                if (o.hasOwnProperty(k)) {
+                    ary.push(k);
+                }
+            }
+            return ary;
+        };
+    }
+
+    var fail = function (tpl, actual, expected, message) {
+        var x = tpl.
+            replace(/<>/, Object.inspect(actual)).
+            replace(/<>/, Object.inspect(expected));
         if (message) {
             x += "\n" + message;
         }
-        throw AssertionError(x);
+        throw new assert.AssertionError(x);
     };
 
-    var assert = {};
-
-    assert.AssertionError = AssertionError;
-    assert.fail = fail;
-
-    assert.ok = function (test, message) {
-        if (!test) {
-            fail("Failed assertion", [], message || "No message given");
-        }
-    };
-
-    assert.equal = function (expected, actual, message) {
-        if (actual != expected) {
-            fail("<> expected to be ==\n<>", [ actual, expected ], message);
-        }
-    };
-
-    assert.notEqual = function (expected, actual, message) {
-        if (actual == expected) {
-            fail("<> expected to be !=\n<>", [ actual, expected ], message);
-        }
-    };
-
-    assert.same = function (expected, actual, message) {
-        if (actual !== expected) {
-            fail("<> expected to be ===\n<>", [ actual, expected ], message);
-        }
-    };
-
-    assert.notSame = function (expected, actual, message) {
+    var deepEqual = function (actual, expected) {
         if (actual === expected) {
-            fail("<> expected to be !== to\n<>", [ actual, expected ], message);
+            return true;
         }
+        if (expected instanceof Date) {
+            return (actual instanceof Date && expected.getTime() === actual.getTime());
+        }
+        if (typeof expected !== 'object' || typeof actual !== 'object') {
+            return actual == expected;
+        }
+        if (expected.prototype !== actual.prototype) {
+            return false;
+        }
+        var keys = Object.keys(expected);
+        if (keys.length !== Object.keys(actual).length) {
+            return false;
+        }
+        for (var i = 0, l = keys.length; i < l; i++) {
+            if (!deepEqual(expected[keys[i]], actual[keys[i]])) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+//    assert.AssertionError = function (message, actual, expected) {
+//        var err = new Error(message);
+//        err._type = 'AssertionError';
+//        err.actual = actual;
+//        err.expected = expected;
+//        return err;
+//    };
+
+    assert.AssertionError = function (message, actual, expected) {
+        Error.call(this, message);
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace.call(this, arguments.callee);
+        }
+        this.actual = actual;
+        this.expected = expected;
+    };
+    assert.AssertionError.prototype = new Error();
+
+    assert.ok = function (guard, message) {
+        if (!guard) {
+            fail("Failed assertion", null, null, message || "No message given");
+        }
+    };
+
+    assert.equal = function (actual, expected, message) {
+        if (actual != expected) {
+            fail("<> expected to be ==\n<>", actual, expected, message);
+        }
+    };
+
+    assert.notEqual = function (actual, expected, message) {
+        if (actual == expected) {
+            fail("<> expected to be !=\n<>", actual, expected, message);
+        }
+    };
+
+    assert.strictEqual = function (actual, expected, message) {
+        if (actual !== expected) {
+            fail("<> expected to be ===\n<>", actual, expected, message);
+        }
+    };
+
+    assert.notStrictEqual = function (actual, expected, message) {
+        if (actual === expected) {
+            fail("<> expected to be !== to\n<>", actual, expected, message);
+        }
+    };
+
+    assert.deepEqual = function (actual, expected, message) {
+        if (!deepEqual(actual, expected)) {
+            fail("<> expected to be deep equal to\n<>", actual, expected, message);
+        }
+    };
+
+    assert.notDeepEqual = function (actual, expected, message) {
+        if (deepEqual(actual, expected)) {
+            fail("<> expected to not be deep equal to\n<>", actual, expected, message);
+        }
+    };
+
+    assert.throws = function (callback, error, message) {
+        try {
+            callback();
+        } catch (ex) {
+            if (!error || ex instanceof error) {
+                return;
+            }
+            //fail("<> exception expected, not <>", error, ex, message);
+            throw ex;
+        }
+        fail("<> exception expected but nothing was thrown.", error, null, message);
     };
 
     return assert;
@@ -126,7 +214,6 @@ var report = (function () {
             tr.appendChild(cell(error.stack || error.stacktrace || error.message));
             table.appendChild(tr);
         }
-
         if (!table.parentNode || table.parentNode.nodeName === '#document-fragment') {
             document.body.appendChild(table);
         }
@@ -157,21 +244,35 @@ var report = (function () {
 
     return report;
 }());
-var Test = function (name, callback, async) {
-    this.name = name;
-    this.async = async || false;
-    this.callback = callback;
-};
+var test = {};
 
-Test.prototype.run = function (ctx) {
-    this.callback.call(ctx);
+test.run = function (tests) {
+    for (var name in tests) {
+        if (tests.hasOwnProperty(name) && name !== 'test' && /^test/.test(name)) {
+            if (typeof tests[name] === 'function') {
+                unit.test(name, tests[name]);
+            } else {
+                test.run(tests[name]);
+            }
+        }
+    }
+    unit.run();
 };
-
 var Module = function (name) {
     this.name = name;
     this.tests = [];
     this.setup = null;
     this.teardown = null;
+};
+
+Module.Test = function (name, callback, async) {
+    this.name = name;
+    this.async = async || false;
+    this.callback = callback;
+};
+
+Module.Test.prototype.run = function (ctx) {
+    this.callback.call(ctx);
 };
 
 Module.prototype.add = function (test) {
@@ -186,22 +287,22 @@ Module.prototype.run = function () {
 };
 
 Module.prototype.runNextTest = function () {
-    var test = this.test = this.tests.shift();
-    if (test) {
+    this.test = this.tests.shift();
+    if (this.test) {
         this.ctx = {};
         try {
             if (typeof this.setup === 'function') {
                 this.setup.call(this.ctx);
             }
-            test.run(this.ctx);
-            if (!test.async) {
+            this.test.run(this.ctx);
+            if (!this.test.async) {
                 this.completed();
             }
         } catch (ex) {
-            if (ex._type === 'AssertionError') {
-                report.fail(test.name, ex);
+            if (ex instanceof assert.AssertionError) {
+                report.fail(this.test.name, ex);
             } else {
-                report.error(test.name, ex);
+                report.error(this.test.name, ex);
             }
         }
     }
@@ -217,6 +318,10 @@ Module.prototype.completed = function () {
         }
     }
     this.runNextTest();
+};
+
+Module.prototype.hasCompleted = function () {
+    return this.test === undefined;
 };
 
 var unit = (function () {
@@ -237,21 +342,30 @@ var unit = (function () {
     };
 
     unit.test = function (name, callback) {
-        module.add(new Test(name, callback));
+        module.add(new Module.Test(name, callback));
     };
 
     unit.async = function (name, callback) {
-        module.add(new Test(name, callback, true));
+        module.add(new Module.Test(name, callback, true));
     };
 
     unit.complete = function () {
         runningModule.completed();
     };
 
+    var waitForCompletion = function () {
+        if (runningModule.hasCompleted()) {
+            unit.run();
+        } else {
+            setTimeout(waitForCompletion, 100);
+        }
+    };
+
     unit.run = function () {
-        for (var i = 0; i < modules.length; i++) {
-            runningModule = modules[i];
+        runningModule = modules.shift();
+        if (runningModule) {
             runningModule.run();
+            waitForCompletion();
         }
     };
 

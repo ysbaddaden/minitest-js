@@ -16,21 +16,30 @@ var unit = (function () {
     };
 
     unit.test = function (name, callback) {
-        module.add(new Test(name, callback));
+        module.add(new Module.Test(name, callback));
     };
 
     unit.async = function (name, callback) {
-        module.add(new Test(name, callback, true));
+        module.add(new Module.Test(name, callback, true));
     };
 
     unit.complete = function () {
         runningModule.completed();
     };
 
+    var waitForCompletion = function () {
+        if (runningModule.hasCompleted()) {
+            unit.run();
+        } else {
+            setTimeout(waitForCompletion, 100);
+        }
+    };
+
     unit.run = function () {
-        for (var i = 0; i < modules.length; i++) {
-            runningModule = modules[i];
+        runningModule = modules.shift();
+        if (runningModule) {
             runningModule.run();
+            waitForCompletion();
         }
     };
 

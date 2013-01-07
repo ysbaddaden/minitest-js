@@ -23,7 +23,6 @@ var report = (function () {
             tr.appendChild(cell(error.stack || error.stacktrace || error.message));
             table.appendChild(tr);
         }
-
         if (!table.parentNode || table.parentNode.nodeName === '#document-fragment') {
             document.body.appendChild(table);
         }
