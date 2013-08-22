@@ -1,8 +1,8 @@
 unit.module("unit");
 
-unit.async("unit.async", function () {
+unit.test("async", function (_, done) {
     setTimeout(function () {
         assert.ok(true);
     }, 1000);
-    unit.complete();
+    done();
 });

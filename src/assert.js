@@ -1,18 +1,6 @@
 var assert = (function () {
     var assert = {};
 
-    if (!Object.keys) {
-        Object.keys = function (o) {
-            var ary = [];
-            for (var k in o) {
-                if (o.hasOwnProperty(k)) {
-                    ary.push(k);
-                }
-            }
-            return ary;
-        };
-    }
-
     var fail = function (tpl, actual, expected, message) {
         var x = tpl.
             replace(/<>/, Object.inspect(actual)).
@@ -48,23 +36,60 @@ var assert = (function () {
         return true;
     };
 
-//    assert.AssertionError = function (message, actual, expected) {
-//        var err = new Error(message);
-//        err._type = 'AssertionError';
-//        err.actual = actual;
-//        err.expected = expected;
-//        return err;
-//    };
-
-    assert.AssertionError = function (message, actual, expected) {
+    var AssertionError = function (message, actual, expected) {
         Error.call(this, message);
+        this.message = message;
         if (Error.captureStackTrace) {
             Error.captureStackTrace.call(this, arguments.callee);
         }
         this.actual = actual;
         this.expected = expected;
     };
-    assert.AssertionError.prototype = new Error();
+    AssertionError.prototype = new Error();
+    assert.AssertionError = AssertionError;
+
+    var Assert = function (logger) {
+        return Object.create(Assert.prototype, { log: { value: logger } });
+    };
+    assert.Assert = Assert;
+
+    Assert.prototype.pass = function (message) {
+        // TODO
+    };
+
+    Assert.prototype.fail = function (options) {
+        // TODO
+        // options.message
+        // options.actual
+        // options.expected
+    };
+
+    Assert.prototype.error = function (e) {
+        // TODO
+    };
+
+    var methods = [
+        'ok', 'equal', 'notEqual', 'deepEqual', 'notDeepEqual',
+        'strictEqual', 'notStrictEqual', 'throws'
+    ];
+    for (var i = 0, l = methods.length; i < l; i++) {
+        Assert.prototype[method] = function () {
+            try {
+                assert[method].apply(null, arguments);
+                this.pass(method === 'ok' ? arguments[1] : arguments[2]);
+            } catch (e) {
+                if (e instanceof assert.AssertionError) {
+                    this.fail({
+                        message:  e.message,
+                        actual:   e.actual,
+                        expected: e.expected
+                    });
+                } else {
+                    this.error(e);
+                }
+            }
+        };
+    }
 
     assert.ok = function (guard, message) {
         if (!guard) {

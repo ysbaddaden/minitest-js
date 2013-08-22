@@ -1,4 +1,4 @@
-var unit = (function () {
+//var unit = (function () {
     var modules = [], module, runningModule;
     var unit = {};
 
@@ -23,8 +23,8 @@ var unit = (function () {
         module.add(new Module.Test(name, callback, true));
     };
 
-    unit.complete = function () {
-        runningModule.completed();
+    unit.done = function () {
+        runningModule.done();
     };
 
     var waitForCompletion = function () {
@@ -45,4 +45,4 @@ var unit = (function () {
 
     unit.module('Test');
     return unit;
-}());
+//}());

@@ -7,12 +7,15 @@ var Module = function (name) {
 
 Module.Test = function (name, callback, async) {
     this.name = name;
-    this.async = async || false;
+    this.async = async || (this.callback.length > 1);
     this.callback = callback;
 };
 
 Module.Test.prototype.run = function (ctx) {
-    this.callback.call(ctx);
+    var self = this;
+    this.callback.call(ctx, undefined, function () {
+        self.done();
+    });
 };
 
 Module.prototype.add = function (test) {
@@ -36,7 +39,7 @@ Module.prototype.runNextTest = function () {
             }
             this.test.run(this.ctx);
             if (!this.test.async) {
-                this.completed();
+                this.done();
             }
         } catch (ex) {
             if (ex instanceof assert.AssertionError) {
@@ -48,7 +51,7 @@ Module.prototype.runNextTest = function () {
     }
 };
 
-Module.prototype.completed = function () {
+Module.prototype.done = function () {
     report.ok(this.test.name);
     if (typeof this.teardown === 'function') {
         try {
