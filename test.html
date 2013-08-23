@@ -7,8 +7,8 @@
   <body>
     <div id="mocha"></div>
 
-    <script src="src/inspect.js"></script>
-    <script src="src/testunit.js"></script>
+    <script src="lib/inspect.js"></script>
+    <script src="lib/minitest.js"></script>
     <script src="test/support/mocha.js"></script>
 
     <script>mocha.setup('bdd')</script>
@@ -16,7 +16,7 @@
     <script src="test/assert_test.js"></script>
     <script>
       mocha.checkLeaks();
-      mocha.globals(['testunit']);
+      mocha.globals(['minitest']);
       mocha.run();
     </script>
   </body>

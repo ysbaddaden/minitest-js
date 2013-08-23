@@ -1,4 +1,9 @@
-all:
-	cat src/inspect.js \
-		src/testunit.js > testunit.js
+.PHONY: test
+.IGNORE: test
+
+all: lib/inspect.js lib/minitest.js
+	cat lib/inspect.js lib/minitest.js > minitest.js
+
+test:
+	mocha --check-leaks
 
