@@ -64,7 +64,3 @@ Number.prototype.toPaddedString = function (length, radix) {
     var string = this.toString(radix || 10);
     return '0'.times(length - string.length) + string;
 };
-
-if (typeof define !== 'undefined') {
-    define('inspect', function () {});
-}
