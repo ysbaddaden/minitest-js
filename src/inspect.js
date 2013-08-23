@@ -65,6 +65,6 @@ Number.prototype.toPaddedString = function (length, radix) {
     return '0'.times(length - string.length) + string;
 };
 
-if (typeof define !== undefined) {
+if (typeof define !== 'undefined') {
     define('inspect', function () {});
 }

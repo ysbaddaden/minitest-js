@@ -1,5 +1,7 @@
 describe("testunit", function () {
-    var testunit       = require('../src/testunit');
+    if (typeof testunit === 'undefined') {
+        testunit = require('../src/testunit');
+    }
     var AssertionError = testunit.AssertionError;
     var assert         = testunit.assert;
     var refute         = testunit.refute;
