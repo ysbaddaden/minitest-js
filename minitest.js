@@ -219,6 +219,12 @@ var validateArguments = function (name, expected, actual) {
     }
 };
 
+var validateCallback = function (name, callback, args) {
+    if (!callback.apply(null, args)) {
+        throw new MockExpectationError("mocked method " + name + "() failed block w/ " + utils.inspect(args));
+    }
+};
+
 var mockMethod = function (self, name) {
     return function () {
         var index = self.actualCalls[name].length;
@@ -229,6 +235,9 @@ var mockMethod = function (self, name) {
         }
         if (expected.args) {
             validateArguments(name, expected.args, arguments);
+        }
+        if (expected.callback) {
+            validateCallback(name, expected.callback, arguments);
         }
 
         self.actualCalls[name].push(expected);
@@ -241,16 +250,29 @@ var Mock = function () {
     this.actualCalls = {};
 };
 
-Mock.prototype.expect = function (name, retval, args) {
-    if (args != nil && !Array.isArray(args)) {
-        throw new TypeError("args must be an array");
+Mock.prototype.expect = function (name, retval, args, callback) {
+    if (args != nil) {
+        if (typeof args === 'function') {
+            callback = args;
+            args = null;
+        } else if (!Array.isArray(args)) {
+            throw new TypeError("args must be an array");
+        }
+    }
+    if (args && callback) {
+        throw new TypeError("args ignored when callback given");
     }
 
     if (!this.expectedCalls[name]) {
         this.expectedCalls[name] = [];
         this.actualCalls[name] = [];
     }
-    this.expectedCalls[name].push({name: name, retval: retval, args: args});
+    this.expectedCalls[name].push({
+        name: name,
+        retval: retval,
+        args: args,
+        callback: callback
+    });
 
     if (!this[name]) {
         this[name] = mockMethod(this, name);
@@ -332,6 +354,9 @@ var inspect = function (object) {
         if (typeof object === 'number') return String(object);
         if (typeof object === 'string') return inspectString(object);
         if (Array.isArray(object))      return inspectArray(object);
+        try {
+            if (String(object) === '[object Arguments]') return inspectArray(object);
+        } catch (e) {}
         if (typeof object === 'object') return inspectObject(object);
         return String(object);
     } catch (e) {
@@ -359,7 +384,7 @@ var inspectObject = function (object) {
 };
 
 var inspectArray = function (ary) {
-    return '[' + ary.map(inspect).join(', ') + ']';
+    return '[' + Array.prototype.map.call(ary, inspect).join(', ') + ']';
 };
 
 var specialChar = {

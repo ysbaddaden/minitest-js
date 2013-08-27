@@ -84,6 +84,27 @@ describe("Mock", function () {
                 mock.a();
             });
         });
+
+        it("must fail when callback returns false", function () {
+            mock = new Mock();
+            mock.expect('foo', null, function () { return false; });
+            assert.throws(MockExpectationError, function () {
+                mock.foo();
+            });
+        });
+
+        it("must throw when passed args + callback", function () {
+            mock = new Mock();
+            assert.throws(TypeError, function () {
+                mock.expect('foo', null, [1, 2, 3], function () { return true; });
+            });
+        });
+
+        it("must return retval when called with block", function () {
+            mock = new Mock();
+            mock.expect('foo', 32, function () { return true; });
+            assert.equal(32, mock.foo());
+        });
     });
 
     describe("#verify", function () {
@@ -133,6 +154,23 @@ describe("Mock", function () {
             assert.throws(MockExpectationError, function () {
                 mock.verify();
             });
+        });
+
+        it("won't blow up when callback returns true", function () {
+            mock = new Mock();
+            mock.expect('foo', null, function () { return true; });
+            mock.foo();
+            assert(mock.verify());
+        });
+
+        it("won't blow up when callback is passed arguments", function () {
+            var arg1 = 'bar', arg2 = [1, 2, 3], arg3 = {a: 'a'};
+            mock = new Mock();
+            mock.expect('foo', null, function (a1, a2, a3) {
+                return a1 === arg1 && a2 === arg2 && a3 === arg3;
+            });
+            mock.foo(arg1, arg2, arg3);
+            assert(mock.verify());
         });
     });
 });
