@@ -188,6 +188,13 @@ describe("Assertions", function () {
                 assert.failure(function () { assert.throws(Error, function () {}); });
                 assert.failure(function () { assert.throws(function () {}); });
             });
+
+            it("must return the catched exception", function () {
+                var err = assert.throws(Error, function () { throw new Error("some message"); });
+                assert(err);
+                assert.instanceOf(Error, err);
+                assert.equal("some message", err.message);
+            });
         });
 
         describe(".match", function () {
