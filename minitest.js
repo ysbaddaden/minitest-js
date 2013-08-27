@@ -1,72 +1,4 @@
-(function(){var global = this;function debug(){return debug};function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("inspect.js", function(module, exports, require, global){
-// This is extracted from PrototypeJS: http://prototypejs.org/
-Object.inspect = function (object) {
-    try {
-        if (object === undefined) {
-            return 'undefined';
-        }
-        if (object === null) {
-            return 'null';
-        }
-        if (object.inspect) {
-            return object.inspect();
-        }
-        if (typeof object === 'object') {
-            var ary = [];
-            for (var key in object) {
-                if (object.hasOwnProperty(key)) {
-                    ary.push(key + ': ' + Object.inspect(object[key]));
-                }
-            }
-            return '{' + ary.join(', ') + '}';
-        }
-        return String(object);
-    } catch (e) {
-        if (e instanceof RangeError) {
-            return '...';
-        }
-        throw e;
-    }
-};
-
-Array.prototype.inspect = function () {
-    //return '[' + this.map(Object.inspect).join(', ') + ']';
-    var ary = [];
-    for (var i = 0, l = this.length; i < l; i++) {
-        ary.push(Object.inspect(this[i]));
-    }
-    return '[' + ary.join(', ') + ']';
-};
-
-String.specialChar = {
-    '\b': '\\b',
-    '\t': '\\t',
-    '\n': '\\n',
-    '\f': '\\f',
-    '\r': '\\r',
-    '\\': '\\\\'
-};
-
-String.prototype.inspect = function () {
-    var escapedString = this.replace(/[\x00-\x1f\\]/g, function (character) {
-        if (character in String.specialChar) {
-            return String.specialChar[character];
-        }
-        return '\\u00' + character.charCodeAt().toPaddedString(2, 16);
-    });
-    return "'" + escapedString.replace(/'/g, '\\\'') + "'";
-};
-
-String.prototype.times = function (count) {
-    return count < 1 ? '' : new Array(count + 1).join(this);
-};
-
-Number.prototype.toPaddedString = function (length, radix) {
-    var string = this.toString(radix || 10);
-    return '0'.times(length - string.length) + string;
-};
-
-});require.register("minitest.js", function(module, exports, require, global){
+(function(){var global = this;function debug(){return debug};function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("minitest.js", function(module, exports, require, global){
 var Assertions = require('./minitest/assertions');
 var Mock = require('./minitest/mock');
 
@@ -78,71 +10,19 @@ module.exports = {
 };
 
 });require.register("minitest/assertions.js", function(module, exports, require, global){
-// FIXME: prototype's inspect doesn't like recursion
-// FIXME: find non obtrusive solution than prototype's inspect (?)
-require('../inspect');
+var utils = require('./utils');
+var message = utils.message;
+var nil = null;
 
 var AssertionError = function (message, expected, actual) {
     var msg = typeof message === 'function' ? message() : message;
     Error.call(this, msg);
     this.message = msg;
     if (Error.captureStackTrace) Error.captureStackTrace.call(this, arguments.callee);
-    if (expected) this.expected = Object.inspect(expected);
-    if (actual) this.actual = Object.inspect(actual);
+    if (expected) this.expected = utils.inspect(expected);
+    if (actual) this.actual = utils.inspect(actual);
 };
 AssertionError.prototype = Object.create(Error.prototype);
-
-var interpolate = function (str, interpolations) {
-    for (var key in interpolations) {
-        if (interpolations.hasOwnProperty(key)) {
-            str = str.replace(new RegExp('%{' + key + '}', 'g'), Object.inspect(interpolations[key]));
-        }
-    }
-    return str;
-};
-
-var message = function (msg, default_msg, interpolations, ending) {
-    return function () {
-        var custom_message = msg && msg.length ? msg + ".\n" : "";
-        return custom_message + interpolate(default_msg, interpolations || {}) + (ending || '.');
-    };
-};
-
-var nil = null;
-
-var empty = function (test) {
-    if (test == nil || test.length === 0) {
-        return true;
-    }
-    if (typeof test === 'object' && Object.keys(test).length === 0) {
-        return true;
-    }
-};
-
-var deepEqual = function (actual, expected) {
-    if (actual === expected) {
-        return true;
-    }
-    if (expected instanceof Date) {
-        return (actual instanceof Date && expected.getTime() === actual.getTime());
-    }
-    if (typeof expected !== 'object' || typeof actual !== 'object') {
-        return actual == expected;
-    }
-    if (expected.prototype !== actual.prototype) {
-        return false;
-    }
-    var keys = Object.keys(expected);
-    if (keys.length !== Object.keys(actual).length) {
-        return false;
-    }
-    for (var i = 0, l = keys.length; i < l; i++) {
-        if (!deepEqual(expected[keys[i]], actual[keys[i]])) {
-            return false;
-        }
-    }
-    return true;
-};
 
 var assert = function (test, msg) {
     if (!test) throw new AssertionError(msg || "Failed assertion, no message given.");
@@ -171,9 +51,7 @@ refute.same = function (expected, actual, msg) {
 };
 
 assert.equal = function (expected, actual, msg) {
-    //return assert(deepEqual(actual, expected),
-    //    message(msg, "Expected %{act} to be equal to\n%{exp}", {act: actual, exp: expected}, ""));
-    if (!deepEqual(actual, expected)) {
+    if (!utils.deepEqual(actual, expected)) {
         throw new AssertionError(
             message(msg, "Expected %{act} to be equal to\n%{exp}", {act: actual, exp: expected}, ""),
             expected, actual);
@@ -182,9 +60,7 @@ assert.equal = function (expected, actual, msg) {
 };
 
 refute.equal = function (expected, actual, msg) {
-    //return refute(deepEqual(actual, expected),
-    //    message(msg, "Expected %{act} to not be equal to\n%{exp}", {act: actual, exp: expected}, ""));
-    if (deepEqual(actual, expected)) {
+    if (utils.deepEqual(actual, expected)) {
         throw new AssertionError(
             message(msg, "Expected %{act} to be equal to\n%{exp}", {act: actual, exp: expected}, ""),
             expected, actual);
@@ -220,11 +96,11 @@ refute.inEpsilon = function (a, b, epsilon, msg) {
 refute.in_epsilon = refute.inEpsilon;
 
 assert.empty = function (test, msg) {
-    return assert(empty(test), message(msg, "Expected %{act} to be empty", {act: test}));
+    return assert(utils.empty(test), message(msg, "Expected %{act} to be empty", {act: test}));
 };
 
 refute.empty = function (test, msg) {
-    return refute(empty(test), message(msg, "Expected %{act} to not be empty", {act: test}));
+    return refute(utils.empty(test), message(msg, "Expected %{act} to not be empty", {act: test}));
 };
 
 assert.includes = function (collection, obj, msg) {
@@ -303,15 +179,11 @@ refute.type_of = refute.typeOf;
 module.exports = {
     AssertionError: AssertionError,
     assert: assert,
-    refute: refute,
-    deepEqual: deepEqual,
-    interpolate: interpolate,
-    message: message
+    refute: refute
 };
 
 });require.register("minitest/mock.js", function(module, exports, require, global){
-var assertions  = require('./assertions');
-var interpolate = assertions.interpolate;
+var utils = require('./utils');
 var nil = null;
 
 var MockExpectationError = function (message) {
@@ -330,24 +202,26 @@ var argsEqual = function (expected, actual) {
             default:     return actual[i] instanceof value;
             }
         }
-        return assertions.deepEqual(value, actual[i]);
+        return utils.deepEqual(value, actual[i]);
     });
 };
 
 var validateArguments = function (name, expected, actual) {
     if (expected.length !== actual.length) {
         throw new TypeError("mocked method " + name + "() expects " +
-            expected.length + "arguments, got " + actual.length + ".");
+            expected.length + "arguments, got " + actual.length + "."
+        );
     }
     if (!argsEqual(expected, actual)) {
         throw new MockExpectationError("mocked method " + name +
             "() called with unexpected arguments " +
-            Array.prototype.slice.call(actual).inspect());
+            utils.inspect(Array.prototype.slice.call(actual))
+        );
     }
 };
 
 var mockMethod = function (self, name) {
-    self[name] = function () {
+    return function () {
         var index = self.actualCalls[name].length;
         var expected = self.expectedCalls[name][index];
 
@@ -372,10 +246,16 @@ Mock.prototype.expect = function (name, retval, args) {
     if (args != nil && !Array.isArray(args)) {
         throw new TypeError("args must be an array");
     }
-    if (!this.expectedCalls[name]) this.expectedCalls[name] = [];
-    if (!this.actualCalls[name]) this.actualCalls[name] = [];
+
+    if (!this.expectedCalls[name]) {
+        this.expectedCalls[name] = [];
+        this.actualCalls[name] = [];
+    }
     this.expectedCalls[name].push({name: name, retval: retval, args: args});
-    if (!this[name]) mockMethod(this, name);
+
+    if (!this[name]) {
+        this[name] = mockMethod(this, name);
+    }
     return this;
 };
 
@@ -394,6 +274,123 @@ Mock.prototype.verify = function () {
 Mock.MockExpectationError = MockExpectationError;
 module.exports = Mock;
 
+
+});require.register("minitest/utils.js", function(module, exports, require, global){
+var nil = null;
+
+var deepEqual = function (actual, expected) {
+    if (actual === expected) {
+        return true;
+    }
+    if (expected instanceof Date) {
+        return (actual instanceof Date && expected.getTime() === actual.getTime());
+    }
+    if (typeof expected !== 'object' || typeof actual !== 'object') {
+        return actual == expected;
+    }
+    if (expected.prototype !== actual.prototype) {
+        return false;
+    }
+    var keys = Object.keys(expected);
+    if (keys.length !== Object.keys(actual).length) {
+        return false;
+    }
+    for (var i = 0, l = keys.length; i < l; i++) {
+        if (!deepEqual(expected[keys[i]], actual[keys[i]])) {
+            return false;
+        }
+    }
+    return true;
+};
+
+var empty = function (test) {
+    if (test == nil || test.length === 0) {
+        return true;
+    }
+    if (typeof test === 'object' && Object.keys(test).length === 0) {
+        return true;
+    }
+};
+
+var interpolate = function (str, interpolations) {
+    for (var key in interpolations) {
+        if (interpolations.hasOwnProperty(key)) {
+            str = str.replace(new RegExp('%{' + key + '}', 'g'), inspect(interpolations[key]));
+        }
+    }
+    return str;
+};
+
+var message = function (msg, default_msg, interpolations, ending) {
+    return function () {
+        var custom_message = msg && msg.length ? msg + ".\n" : "";
+        return custom_message + interpolate(default_msg, interpolations || {}) + (ending || '.');
+    };
+};
+
+// FIXME: prototype's inspect doesn't like recursion!
+var inspect = function (object) {
+    try {
+        if (object === undefined)       return 'undefined';
+        if (object === null)            return 'null';
+        if (typeof object === 'number') return String(object);
+        if (typeof object === 'string') return inspectString(object);
+        if (Array.isArray(object))      return inspectArray(object);
+        if (typeof object === 'object') return inspectObject(object);
+        return String(object);
+    } catch (e) {
+        if (e instanceof RangeError) return '...';
+        throw e;
+    }
+};
+
+var inspectObject = function (object) {
+    var ary = [];
+    for (var key in object) {
+        if (object.hasOwnProperty(key)) {
+            ary.push(key + ': ' + inspect(object[key]));
+        }
+    }
+    return '{' + ary.join(', ') + '}';
+};
+
+var inspectArray = function (ary) {
+    return '[' + ary.map(inspect).join(', ') + ']';
+};
+
+var specialChar = {
+    '\b': '\\b',
+    '\t': '\\t',
+    '\n': '\\n',
+    '\f': '\\f',
+    '\r': '\\r',
+    '\\': '\\\\'
+};
+
+var inspectString = function (str) {
+    var escapedString = str.replace(/[\x00-\x1f\\]/g, function (character) {
+        if (character in specialChar) return specialChar[character];
+        return '\\u00' + toPaddedString(character.charCodeAt(), 2, 16);
+    });
+    return "'" + escapedString.replace(/'/g, '\\\'') + "'";
+};
+
+var toPaddedString = function (num, length, radix) {
+    var string = num.toString(radix || 10);
+    return times('0', length - string.length) + string;
+};
+
+var times = function (str, count) {
+    return count < 1 ? '' : new Array(count + 1).join(str);
+};
+
+module.exports = {
+    deepEqual: deepEqual,
+    empty: empty,
+    interpolate: interpolate,
+    message: message,
+    inspect: inspect
+};
 
 });var exp = require('minitest');if ("undefined" != typeof module) module.exports = exp;else minitest = exp;
 })();
