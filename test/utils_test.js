@@ -5,6 +5,12 @@ describe("utils", function () {
     var utils = require('../lib/minitest/utils');
 
     describe("inspect", function () {
+        it("must inspect function arguments as array", function () {
+            (function () {
+                assert.equal("[1, 2, 3]", utils.inspect(arguments));
+            }(1, 2, 3));
+        });
+
         it("won't inspect objects recursively", function () {
             var A = function (b) { this.b = b; };
             var B = function () { this.a = new A(this); };
