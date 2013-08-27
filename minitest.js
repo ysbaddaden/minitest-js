@@ -68,11 +68,13 @@ Number.prototype.toPaddedString = function (length, radix) {
 
 });require.register("minitest.js", function(module, exports, require, global){
 var Assertions = require('./minitest/assertions');
+var Mock = require('./minitest/mock');
 
 module.exports = {
-    AssertionError: Assertions.AssertionError,
-            assert: Assertions.assert,
-            refute: Assertions.refute
+          AssertionError: Assertions.AssertionError,
+                    Mock: Mock,
+                  assert: Assertions.assert,
+                  refute: Assertions.refute
 };
 
 });require.register("minitest/assertions.js", function(module, exports, require, global){
@@ -81,8 +83,9 @@ module.exports = {
 require('../inspect');
 
 var AssertionError = function (message, expected, actual) {
-    Error.call(this, message);
-    this.message = typeof message === 'function' ? message() : message;
+    var msg = typeof message === 'function' ? message() : message;
+    Error.call(this, msg);
+    this.message = msg;
     if (Error.captureStackTrace) Error.captureStackTrace.call(this, arguments.callee);
     if (expected) this.expected = Object.inspect(expected);
     if (actual) this.actual = Object.inspect(actual);
@@ -243,7 +246,7 @@ assert.throws = function (error, callback, msg) {
         callback();
     } catch (ex) {
         if (!error || ex instanceof error) {
-            return true;
+            return ex;
         }
         throw ex;
     }
@@ -299,41 +302,96 @@ refute.type_of = refute.typeOf;
 
 module.exports = {
     AssertionError: AssertionError,
-    interpolate: interpolate,
-    message: message,
+    assert: assert,
     refute: refute,
-    assert: assert
+    deepEqual: deepEqual,
+    interpolate: interpolate,
+    message: message
 };
 
 });require.register("minitest/mock.js", function(module, exports, require, global){
-var minitest = require('../minitest');
-var assert = minitest.assert;
-var refute = minitest.refute;
+var assertions  = require('./assertions');
+var interpolate = assertions.interpolate;
+var nil = null;
 
-var Mock = function () {
-    this.expected_calls = [];
-    this.actual_calls = [];
+var MockExpectationError = function (message) {
+    Error.call(this, message);
+    this.message = message;
+    if (Error.captureStackTrace) Error.captureStackTrace.call(this, arguments.callee);
+};
+MockExpectationError.prototype = Object.create(Error.prototype);
+
+var argsEqual = function (expected, actual) {
+    return expected.every(function (value, i) {
+        if (typeof value == 'function') {
+            switch (value) {
+            case String: return typeof actual[i] === 'string';
+            case Number: return typeof actual[i] === 'number';
+            default:     return actual[i] instanceof value;
+            }
+        }
+        return assertions.deepEqual(value, actual[i]);
+    });
 };
 
-Mock.prototype.expect = function (method) {
-    var self = this;
+var validateArguments = function (name, expected, actual) {
+    if (expected.length !== actual.length) {
+        throw new TypeError("mocked method " + name + "() expects " +
+            expected.length + "arguments, got " + actual.length + ".");
+    }
+    if (!argsEqual(expected, actual)) {
+        throw new MockExpectationError("mocked method " + name +
+            "() called with unexpected arguments " +
+            Array.prototype.slice.call(actual).inspect());
+    }
+};
 
-    var expected = Array.prototype.slice.call(arguments, 1);
-    self.expectedCalls.push([method, expected]);
+var mockMethod = function (self, name) {
+    self[name] = function () {
+        var index = self.actualCalls[name].length;
+        var expected = self.expectedCalls[name][index];
 
-    this[method] = function () {
-        var actual = Array.prototype.slice.call(arguments);
-        self.actualCalls.push(method, actual);
+        if (!expected) {
+            throw new MockExpectationError("No more expects available for " + name + "()");
+        }
+        if (expected.args) {
+            validateArguments(name, expected.args, arguments);
+        }
+
+        self.actualCalls[name].push(expected);
+        return expected.retval;
     };
 };
 
+var Mock = function () {
+    this.expectedCalls = {};
+    this.actualCalls = {};
+};
+
+Mock.prototype.expect = function (name, retval, args) {
+    if (args != nil && !Array.isArray(args)) {
+        throw new TypeError("args must be an array");
+    }
+    if (!this.expectedCalls[name]) this.expectedCalls[name] = [];
+    if (!this.actualCalls[name]) this.actualCalls[name] = [];
+    this.expectedCalls[name].push({name: name, retval: retval, args: args});
+    if (!this[name]) mockMethod(this, name);
+    return this;
+};
+
 Mock.prototype.verify = function () {
-    for (var i = 0, l = this.expectedCalls.length; i < l; i++) {
-        assert.equal(this.expectedCalls[i], this.actualCalls[i]);
+    for (var name in this.expectedCalls) {
+        if (!this.expectedCalls.hasOwnProperty(name)) {
+            continue;
+        }
+        if (this.actualCalls[name].length !== this.expectedCalls[name].length) {
+            throw new MockExpectationError("Expected " + name + "()");
+        }
     }
     return true;
 };
 
+Mock.MockExpectationError = MockExpectationError;
 module.exports = Mock;
 
 
