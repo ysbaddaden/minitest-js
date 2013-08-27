@@ -39,7 +39,7 @@ draft spec (eg. asserting equality).
   - refute.instanceOf(expected, actual[, message])       — succeeds unless actual instanceof expected
 
 Please see the [test
-suite](https://github.com/ysbaddaden/minitest.js/blob/master/test/assert_test.js)
+suite](https://github.com/ysbaddaden/minitest.js/blob/master/test/assertions_test.js)
 for examples.
 
 Examples:
@@ -81,14 +81,14 @@ Examples:
 var assert = require('./minitest').assert;
 var refute = require('./minitest').refute;
 
-describe('Array', function(){
-  describe('#indexOf()', function(){
-    it('should return -1 when the value is not present', function(){
+describe('Array', function () {
+  describe('#indexOf()', function () {
+    it('should return -1 when the value is not present', function () {
       assert.equal(-1, [1,2,3].indexOf(5));
       assert.equal(-1, [1,2,3].indexOf(0));
-    })
-  })
-})
+    });
+  });
+});
 ```
 
 ### Browser:
@@ -104,8 +104,8 @@ describe('Array', function(){
   <div id="mocha"></div>
 
   <script src="https://raw.github.com/kriskowal/es5-shim/master/es5-shim.min.js"></script>
-  <script src="minitest.js"></script>
-  <script src="mocha.js"></script>
+  <script src="test/support/minitest.js"></script>
+  <script src="test/support/mocha.js"></script>
 
   <script>
     var assert = minitest.assert;

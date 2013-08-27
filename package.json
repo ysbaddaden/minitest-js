@@ -26,7 +26,8 @@
   "dependencies": {
   },
   "devDependencies": {
-    "mocha": ">=0.14.0"
+    "mocha": "*",
+    "browserbuild": "*"
   },
   "scripts": {
     "test": "make test"

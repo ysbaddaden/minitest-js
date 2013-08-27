@@ -1,22 +1,22 @@
-describe("minitest", function () {
-    if (typeof minitest === 'undefined') {
-        minitest = require('../lib/minitest');
-    }
-    var AssertionError = minitest.AssertionError;
-    var assert         = minitest.assert;
-    var refute         = minitest.refute;
+if (typeof require !== 'undefined') {
+    minitest = require('../lib/minitest');
+}
+var AssertionError = minitest.AssertionError;
+var assert         = minitest.assert;
+var refute         = minitest.refute;
 
-    // custom assertion:
-    assert.failure = function (callback, message) {
-        assert.throws(AssertionError, callback, message);
-    };
+// custom assertion:
+assert.failure = function (callback, message) {
+    assert.throws(AssertionError, callback, message);
+};
 
+describe("Assertions", function () {
     var ary = [1, 2, 3];
     var obj = {a: 1, b: 2, c: {1: 3}};
 
-    describe(".assert", function () {
+    describe("assert", function () {
         describe(".ok", function () {
-            it("true",   function () { assert.ok(true); });
+            it("true", function () { assert.ok(true); });
             it("'test'", function () { assert.ok('test'); });
         });
 
@@ -245,7 +245,7 @@ describe("minitest", function () {
         });
     });
 
-    describe(".refute", function () {
+    describe("refute", function () {
         describe(".ok", function () {
             it("false", function () { refute.ok(false); });
         });
