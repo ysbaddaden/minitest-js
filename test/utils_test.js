@@ -1,10 +1,8 @@
 describe("utils", function () {
-    // FIXME: the minitest/utils module isn't exposed to the browser yet.
-    if (typeof require === 'undefined') return;
     var assert = require('../lib/minitest').assert;
-    var utils = require('../lib/minitest/utils');
+    var utils  = require('../lib/minitest/utils');
 
-    describe("inspect", function () {
+    describe(".inspect", function () {
         it("must inspect function arguments as array", function () {
             (function () {
                 assert.equal("[1, 2, 3]", utils.inspect(arguments));
@@ -18,7 +16,7 @@ describe("utils", function () {
         });
     });
 
-    describe("interpolate", function () {
+    describe(".interpolate", function () {
         it("must interpolate one key", function () {
             assert.equal("'interpolated' string",
                 utils.interpolate("%{key} string", { key: "interpolated" }));

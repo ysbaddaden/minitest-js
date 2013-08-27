@@ -1,6 +1,4 @@
-if (typeof require !== 'undefined') {
-    minitest = require('../lib/minitest');
-}
+var minitest       = require('../lib/minitest');
 var AssertionError = minitest.AssertionError;
 var assert         = minitest.assert;
 var refute         = minitest.refute;

@@ -1,6 +1,4 @@
-if (typeof require !== 'undefined') {
-    minitest = require('../lib/minitest');
-}
+var minitest             = require('../lib/minitest');
 var Mock                 = minitest.Mock;
 var MockExpectationError = minitest.Mock.MockExpectationError;
 var assert               = minitest.assert;

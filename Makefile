@@ -8,7 +8,7 @@ all:
 	browserbuild -g minitest -b lib/ -m minitest $(OBJECTS) > minitest.js
 
 test:
-	mocha --check-leaks
+	mocha
 
 report:
 	plato -r -d report/ lib/
