@@ -1,12 +1,16 @@
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>minitest.js test suite</title>
     <link rel="stylesheet" href="support/mocha.css"/>
   </head>
   <body>
     <div id="mocha"></div>
 
+    <script src="support/es5-shim.js"></script>
+    <script src="support/es5-objectcreate.js"></script>
     <script src="support/cajon.js"></script>
     <script src="support/mocha.js"></script>
     <script></script>
@@ -16,7 +20,7 @@
       mocha.checkLeaks();
       mocha.globals(['minitest']);
 
-      require(['utils_test', 'assertions_test', 'mock_test'], function () {
+      require(['utils_test', 'assertions_test', 'mock_test', 'stub_test'], function () {
         mocha.run();
       });
     </script>
