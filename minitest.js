@@ -1,12 +1,12 @@
 (function(){var global = this;function debug(){return debug};function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("minitest.js", function(module, exports, require, global){
 var Assertions = require('./minitest/assertions');
-var Mock = require('./minitest/mock');
 
 module.exports = {
-          AssertionError: Assertions.AssertionError,
-                    Mock: Mock,
-                  assert: Assertions.assert,
-                  refute: Assertions.refute
+    AssertionError: Assertions.AssertionError,
+              Mock: require('./minitest/mock'),
+              stub: require('./minitest/stub'),
+            assert: Assertions.assert,
+            refute: Assertions.refute
 };
 
 });require.register("minitest/assertions.js", function(module, exports, require, global){
@@ -156,7 +156,14 @@ refute.instanceOf = function (expected, actual, msg) {
 refute.instance_of = refute.instanceOf;
 
 assert.typeOf = function (expected, actual, msg) {
-    if (expected === 'array') {
+    switch (expected) {
+    case 'string':
+        return assert(utils.isString(actual),
+            utils.message(msg, "Expected %{act} to be of type 'string' not %{type}", {act: actual, type: typeof actual}));
+    case 'number':
+        return assert(utils.isNumber(actual),
+            utils.message(msg, "Expected %{act} to be of type 'number' not %{type}", {act: actual, type: typeof actual}));
+    case 'array':
         return assert(Array.isArray(actual),
             utils.message(msg, "Expected %{act} to be of type 'array' not %{type}", {act: actual, type: typeof actual}));
     }
@@ -179,6 +186,101 @@ module.exports = {
     AssertionError: AssertionError,
     assert: assert,
     refute: refute
+};
+
+});require.register("minitest/expectations.js", function(module, exports, require, global){
+var AssertionError = require('./assertions').AssertionError;
+var assert = require('./assertions').assert;
+var refute = require('./assertions').refute;
+
+var Expectations = {};
+
+var Matcher = function (actual) {
+    this.actual = actual;
+};
+
+var infectAnAssertion = function (assertion, type, name, dontFlip) {
+    var fn, nil = null;
+
+    if (!!dontFlip) {
+        fn = function () {
+            assertion.apply(null, [this].concat(arguments));
+        };
+    } else {
+        fn = function () {
+            var args = Array.prototype.slice.call(arguments, 1);
+            assertion.apply(null, [arguments[0], this].concat(args));
+        };
+    }
+
+    var camelName = name.charAt(0).toUpperCase() + name.slice(1);
+    var prefix = type === 'must' ? 'to' : 'toNot';
+
+    Expectations[type + camelName] = fn;
+
+    Matcher.prototype[prefix + camelName] = function () {
+        fn.apply(this.actual, arguments);
+    };
+};
+
+infectAnAssertion(assert.empty, 'must', 'beEmpty', 'unary');
+infectAnAssertion(assert.equal, 'must', 'equal');
+infectAnAssertion(assert.inDelta, 'must', 'beCloseTo');
+infectAnAssertion(assert.inDelta, 'must', 'beWithinDelta');
+infectAnAssertion(assert.inEpsilon, 'must', 'beWithinEpsilon');
+infectAnAssertion(assert.includes, 'must', 'include', 'reverse');
+infectAnAssertion(assert.instanceOf, 'must', 'beInstanceOf');
+infectAnAssertion(assert.typeOf, 'must', 'beTypeOf');
+infectAnAssertion(assert.matches, 'must', 'match');
+//infectAnAssertion(assert.nil, 'must', 'beNil', 'reverse');
+//infectAnAssertion(assert.operator, 'mustBe', 'reverse');
+//infectAnAssertion(assert.respondTo, 'must', 'respondTo', 'reverse');
+infectAnAssertion(assert.same, 'must', 'beSameAs');
+infectAnAssertion(assert.throws, 'must', 'throws');
+
+infectAnAssertion(refute.empty, 'wont', 'beEmpty', 'unary');
+infectAnAssertion(refute.equal, 'wont', 'equal');
+infectAnAssertion(refute.inDelta, 'wont', 'beCloseTo');
+infectAnAssertion(refute.inDelta, 'wont', 'beWithinDelta');
+infectAnAssertion(refute.inEpsilon, 'wont', 'beWithinEpsilon');
+infectAnAssertion(refute.includes, 'wont', 'include', 'reverse');
+infectAnAssertion(refute.instanceOf, 'wont', 'beInstanceOf');
+infectAnAssertion(refute.typeOf, 'wont', 'beTypeOf');
+infectAnAssertion(refute.matches, 'wont', 'match');
+//infectAnAssertion(refute.nil, 'wont', 'beNil', 'reverse');
+//infectAnAssertion(refute.operator, 'wont', 'be', 'reverse');
+//infectAnAssertion(refute.respondTo, 'wont', 'respondTo', 'reverse');
+infectAnAssertion(refute.same, 'wont', 'beSameAs');
+
+var infect = function (object, name) {
+    Object.defineProperty(object, name, {
+        set: function () {},
+        get: function () {
+            var self = this;
+            return function () {
+                return Expectations[name].apply(self, arguments);
+            };
+        },
+        enumerable: false,
+        configurable: true
+    });
+};
+
+module.exports = {
+    expect: function (self) {
+        return new Matcher(self);
+    },
+    infect: function (object) {
+        if (!Object.defineProperties) {
+            return;
+        }
+        for (var name in Expectations) {
+            if (Expectations.hasOwnProperty(name)) {
+                infect(object, name);
+            }
+        }
+    },
+    infectAnAssertion: infectAnAssertion
 };
 
 });require.register("minitest/mock.js", function(module, exports, require, global){
@@ -296,6 +398,46 @@ Mock.MockExpectationError = MockExpectationError;
 module.exports = Mock;
 
 
+});require.register("minitest/spec.js", function(module, exports, require, global){
+var Expectations = require('./expectations');
+
+//if (typeof MT_NO_EXPECTATIONS === 'undefined' || !MT_NO_EXPECTATIONS) {
+    Expectations.infect(Object.prototype);
+//}
+
+});require.register("minitest/stub.js", function(module, exports, require, global){
+var stub = function (object, name, val_or_callable, callback) {
+    var saved = object[name];
+    object[name] = function () {
+        if (typeof val_or_callable === 'function') {
+            return val_or_callable.apply(null, arguments);
+        } else {
+            return val_or_callable;
+        }
+    };
+    try {
+        callback(object);
+    } finally {
+        object[name] = saved;
+    }
+    return object;
+};
+
+if (Object.defineProperties) {
+    Object.defineProperty(Object.prototype, 'stub', {
+        set: function () {},
+        get: function () {
+            return function (name, val_or_callable, callback) {
+                return stub(this, name, val_or_callable, callback);
+            };
+        },
+        enumerable: false,
+        configurable: true
+    });
+}
+
+module.exports = stub;
+
 });require.register("minitest/utils.js", function(module, exports, require, global){
 var nil = null;
 
@@ -345,14 +487,22 @@ var message = function (msg, default_msg, interpolations, ending) {
     };
 };
 
+var isNumber = function (val) {
+    return typeof val === 'number' || val instanceof Number;
+};
+
+var isString = function (val) {
+    return typeof val === 'string' || val instanceof String;
+};
+
 // inspect is extracted from Prototype © Prototype Core Team
 // https://github.com/sstephenson/prototype
 var inspect = function (object) {
     try {
         if (object === undefined)       return 'undefined';
         if (object === null)            return 'null';
-        if (typeof object === 'number') return String(object);
-        if (typeof object === 'string') return inspectString(object);
+        if (isNumber(object))           return String(object);
+        if (isString(object))           return inspectString(object);
         if (Array.isArray(object))      return inspectArray(object);
         try {
             if (String(object) === '[object Arguments]') return inspectArray(object);
@@ -418,7 +568,9 @@ module.exports = {
     empty: empty,
     interpolate: interpolate,
     message: message,
-    inspect: inspect
+    inspect: inspect,
+    isNumber: isNumber,
+    isString: isString
 };
 
 });var exp = require('minitest');if ("undefined" != typeof module) module.exports = exp;else minitest = exp;

@@ -20,7 +20,7 @@
       mocha.checkLeaks();
       mocha.globals(['minitest']);
 
-      require(['utils_test', 'assertions_test', 'mock_test', 'stub_test'], function () {
+      require(['utils_test', 'assertions_test', 'mock_test', 'stub_test', 'expectations_test'], function () {
         mocha.run();
       });
     </script>
