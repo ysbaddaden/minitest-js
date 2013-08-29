@@ -16,10 +16,15 @@
     <script></script>
 
     <script>
+      // WARNING: allows minitest to violently create methods on Object.prototype!
+      var MT_FORCE_LEGACY = true;
+
+      // mocha
       mocha.setup('bdd');
       mocha.checkLeaks();
       mocha.globals(['minitest']);
 
+      // the actual tests
       require(['utils_test', 'assertions_test', 'mock_test', 'stub_test', 'expectations_test'], function () {
         mocha.run();
       });
