@@ -16,8 +16,12 @@ expectations.
 ## Browser support
 
 Minitest.js can be used from both Node.js and the browser. Any recent browser
-that supports ECMAScript 5 (ES5) should be fully supported. Legacy browsers may
-be supported using es5-shim & es5-sham.
+that supports ECMAScript 5 (ES5) should be fully supported, and most features
+(except for stub and matchers) should be compatible with any legacy browser.
+
+It has been successfully tested with IE6+ for example, and should be fully
+compatible with IE 10+, Firefox 4+ and Safari 5.1+. If you stick to assertions
+and mocks, any browser should be compatible (from IE6+).
 
 ## Documentation
 
@@ -30,12 +34,12 @@ been flipped: expected, actual instead or actual, expected.
 
 Some assertions have been renamed:
 
-- `assert.equal`           — *removed* (`==` is unreliable and deepEqual is better)
-- `assert.notEqual`        — *removed*
-- `assert.deepEqual`       — renamed as `assert.equal`
-- `assert.notDeepEqual`    — renamed as `refute.equal`
-- `assert.strictEqual`     — renamed as `assert.same`
-- `assert.notStrictEqual`  — renamed as `refute.same`
+  - `assert.equal`           — *removed* (`==` is unreliable and deepEqual is better)
+  - `assert.notEqual`        — *removed*
+  - `assert.deepEqual`       — renamed as `assert.equal`
+  - `assert.notDeepEqual`    — renamed as `refute.equal`
+  - `assert.strictEqual`     — renamed as `assert.same`
+  - `assert.notStrictEqual`  — renamed as `refute.same`
 
 Also, `assert` is itself an assertion, and thus `assert.ok` is just an alias for
 it. The same goes for `refute` and `refute.ok`.
@@ -106,6 +110,30 @@ assert.is('Array', Array);
 assert.is('MyObject', new MyObject());
 ```
 -->
+
+### Expectations
+
+Expectations come in two forms: expect and matchers. while matchers will feel
+like home to ruby minitest/spec users, expect should be favorited when legacy
+browsers must be supported.
+
+#### Expect
+
+```javascript
+var expect = require('minitest').expect;
+
+expect("str").toEqual("str");
+expect([1, 2, 3]).toNotBeEmpty(true);
+```
+
+#### Matchers
+
+```javascript
+require('minitest/spec');
+
+"content".mustEqual("content");
+[1, 2, 3].wontEqual([1, 2, 3]);
+```
 
 ### Mock
 
