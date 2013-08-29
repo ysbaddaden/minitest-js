@@ -1,36 +1,38 @@
 {
-  "author": "Julien Portalier <julien@portalier.com>",
   "name": "minitest",
-  "description": "A JavaScript port of the Ruby gem",
   "version": "0.1.0",
+  "description": "A JavaScript port of the minitest ruby gem",
   "keywords": [
     "minitest",
     "test",
     "unit",
-    "assertions",
     "assert",
-    "refute"
+    "expect",
+    "tdd",
+    "bdd"
   ],
-  "preferGlobal": true,
+  "author": "Julien Portalier <julien@portalier.com>",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ysbaddaden/minitest.js.git"
+    "url": "git://github.com/ysbaddaden/minitest-js.git"
   },
   "bugs": {
-    "url": "https://github.com/ysbaddaden/minitest.js/issues"
+    "url": "https://github.com/ysbaddaden/minitest-js/issues"
   },
-  "main": "lib/minitest",
+  "main": "./lib/minitest",
   "engines": {
-    "node": ">=0.4"
+    "node": ">=0.6"
   },
-  "dependencies": {
+  "scripts": {
+    "test": "mocha"
   },
   "devDependencies": {
     "mocha": "*",
     "browserbuild": "*"
   },
-  "scripts": {
-    "test": "make test"
-  },
-  "homepage": "https://github.com/ysbaddaden/minitest.js"
+  "files": [
+      "lib",
+      "index.js",
+      "minitest.js"
+  ]
 }

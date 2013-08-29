@@ -1,16 +1,44 @@
 # minitest.js
 
-A port of Ruby's MiniTest assertions to JavaScript, ready to be used with
-[mocha](http://visionmedia.github.io/mocha).
+A port of Ruby's [minitest](https://github.com/seattlerb/minitest) assertions to
+JavaScript, ready to be used with [mocha](http://visionmedia.github.io/mocha).
 
-Only the assertions have been ported, since mocha already provides the necessary
-framework to run tests, but lacked a good
+Since mocha provides the necessary framework to run tests, there was no reason
+to use anything else. This port of minitest thus focuses on the assertions part
+and everything related to them: expectations, mocks and stubs.
 
-minitest.js obviously follows the minitest API as much as possible, yet conforms
-to the CommonJS' [Unit_testing/1.0](http://wiki.commonjs.org/wiki/Unit_Testing/1.0)
-draft spec (eg. asserting equality).
+Overall, the assertions are direct port of their ruby counterparts, but there
+are of course some differences because JavaScript is quite a peculiar language,
+especially when it comes to compare primitives with their Object counterparts.
+Oddly enough, that happens all the times when testing, especially with
+expectations.
 
-## Usage
+## Browser support
+
+Minitest.js can be used from both Node.js and the browser. Any recent browser
+that supports ECMAScript 5 (ES5) should be fully supported. Legacy browsers may
+be supported using es5-shim & es5-sham.
+
+## Documentation
+
+## Differences with CommonJS' Unit_Testing/1.0
+
+Minitest.js is compatible with the
+[CommonJS Unit Testing/1.0](http://wiki.commonjs.org/wiki/Unit_Testing/1.0)
+spec, but there are some differences: the expected and actual parameters have
+been flipped: expected, actual instead or actual, expected.
+
+Some assertions have been renamed:
+
+- `assert.equal`           — *removed* (`==` is unreliable and deepEqual is better)
+- `assert.notEqual`        — *removed*
+- `assert.deepEqual`       — renamed as `assert.equal`
+- `assert.notDeepEqual`    — renamed as `refute.equal`
+- `assert.strictEqual`     — renamed as `assert.same`
+- `assert.notStrictEqual`  — renamed as `refute.same`
+
+Also, `assert` is itself an assertion, and thus `assert.ok` is just an alias for
+it. The same goes for `refute` and `refute.ok`.
 
 ### Assertions
 
@@ -42,44 +70,96 @@ Please see the [test
 suite](https://github.com/ysbaddaden/minitest.js/blob/master/test/assertions_test.js)
 for examples.
 
+<!--
 Examples:
 
-    assert.equal(1, '1');
-    refute.equal(1, 2);
+```javascript
+assert.equal(1, '1');
+refute.equal(1, 2);
 
-    assert.same(1, 1);
-    refute.same(1, '1');
+assert.same(1, 1);
+refute.same(1, '1');
 
-    var obj = {a:1};
-    assert.same(obj, obj);
-    refute.same([1], [1]);
+var obj = {a:1};
+assert.same(obj, obj);
+refute.same([1], [1]);
 
-    assert.deepEqual([1, 2, 3], [1, 2, 3]);
-    assert.deepEqual({ a: 1, b: { c: 2 }}, { a: 1, b: { c: 2 }});
+assert.deepEqual([1, 2, 3], [1, 2, 3]);
+assert.deepEqual({ a: 1, b: { c: 2 }}, { a: 1, b: { c: 2 }});
 
-    assert.throws(AssertionError, function () {
-        assert.ok(false);
-    });
+assert.throws(AssertionError, function () {
+    assert.ok(false);
+});
 
-    var BLANK = /^\s*$/;
-    assert.match(BLANK, "");
-    refute.match(BLANK, "content");
+var BLANK = /^\s*$/;
+assert.match(BLANK, "");
+refute.match(BLANK, "content");
 
-    assert.is(null, null);
-    refute.is(null, undefined);
+assert.is(null, null);
+refute.is(null, undefined);
 
-    assert.is('object', {});
-    assert.is('array', [1, 2]);
+assert.is('object', {});
+assert.is('array', [1, 2]);
 
-    var MyObject = function () {};
-    assert.is('Array', Array);
-    assert.is('MyObject', new MyObject());
+var MyObject = function () {};
+assert.is('Array', Array);
+assert.is('MyObject', new MyObject());
+```
+-->
 
-### Node:
+### Mock
 
 ```javascript
-var assert = require('./minitest').assert;
-var refute = require('./minitest').refute;
+var Mock   = require('minitest/mock');
+var assert = require('minitest').assert;
+
+describe("computer", function () {
+    var computer;
+
+    beforeEach(function () {
+        computer = new Mock().expect('meaning_of_life', 42);
+    });
+
+    it("must reply to the question", function () {
+        assert.equal(42, computer.meaning_of_life());
+        assert(computer.verify());
+    });
+});
+```
+
+### Stub
+
+You may stub a method of any objet for the duration of a callback:
+
+```javascript
+var stub   = require('minitest/stub');
+var assert = require('minitest').assert;
+
+stub(Date, 'now', 0, function () {
+    assert.equal(0, Date.now());
+});
+refute.equal(0, Date.now());
+```
+
+On modern browsers (IE 10+ and FF 4+), Object's prototype is infected with the
+non enumerable `stub` method, so you can:
+
+```javascript
+require('minitest/stub');
+
+var earth = new Computer();
+earth.stub('meaning_of_life', 42, function () {
+    assert.equal(42, earth.meaning_of_life());
+});
+```
+
+## Usage
+
+### Node.js
+
+```javascript
+var assert = require('minitest').assert;
+var refute = require('minitest').refute;
 
 describe('Array', function () {
   describe('#indexOf()', function () {
@@ -91,7 +171,7 @@ describe('Array', function () {
 });
 ```
 
-### Browser:
+### Browsers
 
 ```html
 <html>
