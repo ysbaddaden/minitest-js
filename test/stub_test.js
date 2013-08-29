@@ -1,4 +1,5 @@
 var minitest = require('../lib/minitest');
+var utils    = require('../lib/minitest/utils');
 var assert   = minitest.assert;
 var refute   = minitest.refute;
 var stub     = minitest.stub;
@@ -44,8 +45,8 @@ describe("Stub", function () {
     describe("Object#stub property", function () {
         var obj;
 
-        // skip legacy browsers that don't support properties
-        if (!Object.prototype.hasOwnProperty('stub')) return;
+        // skips legacy browsers that don't support properties
+        if (!Object.prototype.stub) return;
 
         beforeEach(function () {
             obj = new StubTest();

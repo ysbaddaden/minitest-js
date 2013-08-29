@@ -1,11 +1,13 @@
-require('../lib/minitest/spec');
-
-var AssertionError = require('../lib/minitest/assertions').AssertionError;
-var assert         = require('../lib/minitest/assertions').assert;
-var expect         = require('../lib/minitest/expectations').expect;
+var minitest       = require('../lib/minitest');
+var utils          = require('../lib/minitest/utils');
+var AssertionError = minitest.AssertionError;
+var assert         = minitest.assert;
 
 describe("Expectations", function () {
-    if (!Object.defineProperties) return;
+    require('../lib/minitest/spec');
+
+    // skips legacy browsers that don't support properties
+    if (!Object.prototype.mustEqual) return;
 
     it("must infect Object with expectations", function () {
         assert.typeOf('function', Object.prototype.mustEqual);
@@ -24,6 +26,8 @@ describe("Expectations", function () {
 });
 
 describe("expect()", function () {
+    var expect = require('../lib/minitest/expectations').expect;
+
     it(".toEqual", function () {
         expect(1).toEqual(1);
         assert.throws(AssertionError, function () { expect(1).toEqual(2); });
