@@ -66,13 +66,6 @@ it. The same goes for `refute` and `refute.ok`.
   - refute.typeOf(expected, actual[, message])           — succeeds unless typeof actual == expected (supports 'array')
   - refute.instanceOf(expected, actual[, message])       — succeeds unless actual instanceof expected
 
-Please see the [test
-suite](https://github.com/ysbaddaden/minitest.js/blob/master/test/assertions_test.js)
-for examples.
-
-<!--
-Examples:
-
 ```javascript
 assert.equal(1, '1');
 refute.equal(1, 2);
@@ -90,22 +83,11 @@ assert.deepEqual({ a: 1, b: { c: 2 }}, { a: 1, b: { c: 2 }});
 assert.throws(AssertionError, function () {
     assert.ok(false);
 });
-
-var BLANK = /^\s*$/;
-assert.match(BLANK, "");
-refute.match(BLANK, "content");
-
-assert.is(null, null);
-refute.is(null, undefined);
-
-assert.is('object', {});
-assert.is('array', [1, 2]);
-
-var MyObject = function () {};
-assert.is('Array', Array);
-assert.is('MyObject', new MyObject());
 ```
--->
+
+Please see the [test
+suite](https://github.com/ysbaddaden/minitest.js/blob/master/test/assertions_test.js)
+for more examples.
 
 ### Mock
 
