@@ -1,17 +1,16 @@
 module.exports = function(grunt) {
     // saucelabs
     var browsers = [
-        { browserName: "chrome", platform: "XP" },
-        { browserName: "chrome", platform: "Linux" },
-        ////{ browserName: "firefox", version: "3" },
-        { browserName: "firefox", version: "19" },
-        { browserName: "internet explorer", platform: "Windows 8", version: "10" },
-        { browserName: "internet explorer", platform: "Windows 7", version: "9" },
-        { browserName: "internet explorer", platform: "Windows XP", version: "8" },
-        ////{ browserName: "internet explorer", platform: "Windows XP", version: "6" },
-        //{ browserName: "safari", platform: "Mac 10.6", version: "5" },
-        { browserName: "opera", platform: "Windows XP", version: "12" }
-        //,
+        { browserName: "chrome", platform: "XP" } //,
+        //{ browserName: "chrome", platform: "Linux" },
+        //////{ browserName: "firefox", version: "3" },
+        //{ browserName: "firefox", version: "22" },
+        //{ browserName: "internet explorer", platform: "Windows 8", version: "10" },
+        //{ browserName: "internet explorer", platform: "Windows 7", version: "9" },
+        //{ browserName: "internet explorer", platform: "Windows XP", version: "8" },
+        //////{ browserName: "internet explorer", platform: "Windows XP", version: "6" },
+        ////{ browserName: "safari", platform: "Mac 10.6", version: "5" },
+        //{ browserName: "opera", platform: "Windows XP", version: "12" },
         //{ browserName: "iphone", platform: "Mac 10.6", version: "4" },
         //{ browserName: "android", platform: "Linux", version: "4.0" }
     ];

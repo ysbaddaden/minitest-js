@@ -17,5 +17,5 @@ env:
 matrix:
   exclude:
     - node_js: 0.8
-      SAUCELABS: true
+      env: SAUCELABS=true
 
