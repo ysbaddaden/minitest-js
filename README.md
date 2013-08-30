@@ -19,8 +19,6 @@ Minitest.js can be used from both Node.js and the browser. Any recent browser
 that supports ECMAScript 5 (ES5) should be fully supported. Legacy browsers may
 be supported using es5-shim & es5-sham.
 
-## Documentation
-
 ## Differences with CommonJS' Unit_Testing/1.0
 
 Minitest.js is compatible with the
@@ -40,7 +38,7 @@ Some assertions have been renamed:
 Also, `assert` is itself an assertion, and thus `assert.ok` is just an alias for
 it. The same goes for `refute` and `refute.ok`.
 
-### Assertions
+## Assertions
 
   - assert(test[, message])                              — succeeds if test is truthy
   - assert.ok(test[, message])                           — alias for assert()
@@ -66,6 +64,8 @@ it. The same goes for `refute` and `refute.ok`.
   - refute.typeOf(expected, actual[, message])           — succeeds unless typeof actual == expected (supports 'array')
   - refute.instanceOf(expected, actual[, message])       — succeeds unless actual instanceof expected
 
+### Examples:
+
 ```javascript
 assert.equal(1, '1');
 refute.equal(1, 2);
@@ -89,7 +89,7 @@ Please see the [test
 suite](https://github.com/ysbaddaden/minitest.js/blob/master/test/assertions_test.js)
 for more examples.
 
-### Mock
+## Mock
 
 ```javascript
 var Mock   = require('minitest/mock');
@@ -109,7 +109,7 @@ describe("computer", function () {
 });
 ```
 
-### Stub
+## Stub
 
 You may stub a method of any objet for the duration of a callback:
 
