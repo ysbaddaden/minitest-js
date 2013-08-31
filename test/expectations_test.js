@@ -4,9 +4,9 @@ var AssertionError = minitest.AssertionError;
 var assert         = minitest.assert;
 
 describe("Expectations", function () {
-    require('../lib/minitest/spec');
-
     describe("matchers", function () {
+        require('../lib/minitest/spec');
+
         // skips legacy browsers that don't support properties
         if (!Object.prototype.mustEqual) return;
 
@@ -114,19 +114,107 @@ describe("Expectations", function () {
             e.mustBeInstanceOf(Error);
         });
     });
-});
 
-describe("expect()", function () {
-    var expect = require('../lib/minitest/expectations').expect;
+    describe("expect()", function () {
+        var expect = require('../lib/minitest/expectations').expect;
 
-    it(".toEqual", function () {
-        expect(1).toEqual(1);
-        assert.throws(AssertionError, function () { expect(1).toEqual(2); });
+        it(".toBeEmpty", function () {
+            expect([]).toBeEmpty();
+            assert.throws(AssertionError, function () { expect([1]).toBeEmpty(); });
+        });
+
+        it(".toNotBeEmpty", function () {
+            expect([1]).toNotBeEmpty();
+            assert.throws(AssertionError, function () { expect([]).toNotBeEmpty(); });
+        });
+
+        it(".toEqual", function () {
+            expect("content").toEqual("content");
+            assert.throws(AssertionError, function () { expect(1).toEqual(2); });
+        });
+
+        it(".toNotEqual", function () {
+            expect("content").toNotEqual("<html>");
+            assert.throws(AssertionError, function () { expect(1).toNotEqual(1); });
+        });
+
+        it(".toBeWithinDelta", function () {
+            expect(0).toBeWithinDelta(1.0 / 1000);
+            assert.throws(AssertionError, function () { expect(0).toBeWithinDelta(1.0 / 999); });
+        });
+
+        it(".toNotBeWithinDelta", function () {
+            expect(0).toNotBeWithinDelta(1.0 / 1000, 0.000001);
+            assert.throws(AssertionError, function () { expect(0).toNotBeWithinDelta(1.0 / 1000, 0.1); });
+        });
+
+        it(".toBeWithinEpsilon", function () {
+            expect(9991).toBeWithinEpsilon(10000);
+            expect(9999.1).toBeWithinEpsilon(10000, 0.0001);
+            assert.throws(AssertionError, function () { expect(9990).toBeWithinEpsilon(10000); });
+        });
+
+        it(".toNotBeWithinEpsilon", function () {
+            expect(9990 - 1).toNotBeWithinEpsilon(10000);
+            assert.throws(AssertionError, function () { expect(9990).toNotBeWithinEpsilon(10000); });
+        });
+
+        it(".toInclude", function () {
+            expect([1, 2]).toInclude(2);
+            assert.throws(AssertionError, function () { expect([1, 2]).toInclude(3); });
+        });
+
+        it(".toNotInclude", function () {
+            expect([1, 2]).toNotInclude(3);
+            assert.throws(AssertionError, function () { expect([1, 2]).toNotInclude(2); });
+        });
+
+        it(".toBeInstanceOf", function () {
+            expect([]).toBeInstanceOf(Array);
+            assert.throws(AssertionError, function () { expect([]).toBeInstanceOf(Number); });
+        });
+
+        it(".toNotBeInstanceOf", function () {
+            expect([]).toNotBeInstanceOf(Number);
+            assert.throws(AssertionError, function () { expect([]).toNotBeInstanceOf(Array); });
+        });
+
+        it(".toBeTypeOf", function () {
+            expect([]).toBeTypeOf('array');
+            assert.throws(AssertionError, function () { expect([]).toBeTypeOf('number'); });
+        });
+
+        it(".toNotBeTypeOf", function () {
+            expect([]).toNotBeTypeOf('number');
+            assert.throws(AssertionError, function () { expect([]).toNotBeTypeOf('array'); });
+        });
+
+        it(".toMatch", function () {
+            expect("content").toMatch(/\w+/);
+            assert.throws(AssertionError, function () { expect("content").toMatch(/\s+/); });
+        });
+
+        it(".toNotMatch", function () {
+            expect("content").toNotMatch(/\s+/);
+            assert.throws(AssertionError, function () { expect("content").toNotMatch(/\w+/); });
+        });
+
+        it(".toBeSameAs", function () {
+            var obj = {};
+            expect(obj).toBeSameAs(obj);
+            assert.throws(AssertionError, function () { expect({}).toBeSameAs(obj); });
+        });
+
+        it(".toNotBeSameAs", function () {
+            var obj = [];
+            expect([]).toNotBeSameAs(obj);
+            assert.throws(AssertionError, function () { expect(obj).toNotBeSameAs(obj); });
+        });
+
+        it(".toThrow", function () {
+            expect(function () { throw new Error(); }).toThrow();
+            var e = expect(function () { throw new Error(); }).toThrow(Error);
+            expect(e).toBeInstanceOf(Error);
+        });
     });
-
-    it(".toNotEqual", function () {
-        expect(1).toNotEqual(2);
-        assert.throws(AssertionError, function () { expect(1).toNotEqual(1); });
-    });
 });
-
