@@ -5,29 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>minitest.js test suite</title>
     <link rel="stylesheet" href="support/mocha.css"/>
-  </head>
-  <body>
-    <div id="mocha"></div>
 
     <script src="support/es5-shim.js"></script>
     <script src="support/es5-sham.js"></script>
     <script src="support/cajon.js"></script>
     <script src="support/mocha.js"></script>
-    <script></script>
 
     <script>
-      // WARNING: allows minitest to violently create methods on Object.prototype!
-      var MT_FORCE_LEGACY = true;
+      onload = function () {
+        mocha.setup('bdd');
+        mocha.checkLeaks();
+        mocha.globals(['minitest']);
 
-      // mocha
-      mocha.setup('bdd');
-      mocha.checkLeaks();
-      mocha.globals(['minitest']);
-
-      // the actual tests
-      require(['utils_test', 'assertions_test', 'mock_test', 'stub_test', 'expectations_test'], function () {
-        mocha.run();
-      });
+        require(['utils_test', 'assertions_test', 'mock_test', 'stub_test', 'expectations_test'], function () {
+          var runner = mocha.run();
+        });
+      };
     </script>
+  </head>
+  <body>
+    <div id="mocha"></div>
   </body>
 </html>

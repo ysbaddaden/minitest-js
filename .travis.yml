@@ -3,3 +3,19 @@ node_js:
   - "0.10"
   - "0.8"
 
+before_script:
+  - npm install -g grunt-cli
+
+env:
+  global:
+    - secure: P1/N8eIVFsS5vPpc6kOLKvsoUpVvt1S2zMB3N8UyJ95/zI7ecEhtWyfxSJsDql6ewHYOvzu9NaSjbnNAdMO7jHjlNQSmbIN8pDpEDiS02lqv7gYRpVfdT9qJhbjiUjd+vYUbV2hfoyHnbwcRZcue9MDBx0jGRxVcDz7/viJ7vxQ=
+    - secure: R5OMpbYv/5zyl1rwWraErdGU9+8Vk9YxviNYP0B5HLLwFHWwkk+IgreZCp9Ff9brm/12joc6Hol2vMr03G3cTcfo9XNWR2bTPq4Y2fvS4eWQuRySpZPXRwBYTOJCCXs8iHVPuLI+qWJrGvFdvYsbbx8t40Yzc68rzKAE87bJq3c=
+  matrix:
+    - SAUCELABS=true
+    - SAUCELABS=
+
+matrix:
+  exclude:
+    - node_js: "0.8"
+      env: SAUCELABS=true
+

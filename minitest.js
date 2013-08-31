@@ -192,6 +192,7 @@ module.exports = {
 var AssertionError = require('./assertions').AssertionError;
 var assert = require('./assertions').assert;
 var refute = require('./assertions').refute;
+var utils = require('./utils');
 
 var Expectations = {};
 
@@ -253,16 +254,8 @@ infectAnAssertion(refute.matches, 'wont', 'match');
 infectAnAssertion(refute.same, 'wont', 'beSameAs');
 
 var infect = function (object, name) {
-    Object.defineProperty(object, name, {
-        set: function () {},
-        get: function () {
-            var self = this;
-            return function () {
-                return Expectations[name].apply(self, arguments);
-            };
-        },
-        enumerable: false,
-        configurable: true
+    utils.infectMethod(name, function () {
+        return Expectations[name].apply(this, arguments);
     });
 };
 
@@ -406,6 +399,8 @@ var Expectations = require('./expectations');
 //}
 
 });require.register("minitest/stub.js", function(module, exports, require, global){
+var utils = require('./utils');
+
 var stub = function (object, name, val_or_callable, callback) {
     var saved = object[name];
     object[name] = function () {
@@ -423,18 +418,9 @@ var stub = function (object, name, val_or_callable, callback) {
     return object;
 };
 
-if (Object.defineProperties) {
-    Object.defineProperty(Object.prototype, 'stub', {
-        set: function () {},
-        get: function () {
-            return function (name, val_or_callable, callback) {
-                return stub(this, name, val_or_callable, callback);
-            };
-        },
-        enumerable: false,
-        configurable: true
-    });
-}
+utils.infectMethod('stub', function (name, val_or_callable, callback) {
+    return stub(this, name, val_or_callable, callback);
+});
 
 module.exports = stub;
 
@@ -563,14 +549,67 @@ var times = function (str, count) {
     return count < 1 ? '' : new Array(count + 1).join(str);
 };
 
+// OBJECT PROPERTIES: either define property or silently skip it
+//
+// 1) legacy browsers don't support defineProperty;
+// 2) IE8 doesn't support defineProperty on non DOM objects;
+// 3) IE9 has a bug where +this+ in a getter on Number is always +0+.
+
+var supportsDefineProperty = false;
+
+if (Object.defineProperty) {
+    try {
+        Object.defineProperty(Object.prototype, '__mt_test_define_property', {
+            get: function () { return this; }, configurable: true
+        });
+        supportsDefineProperty = (101).__mt_test_define_property == 101;
+        delete Object.prototype.__mt_test_define_property;
+    } catch (error) {}
+}
+
+// Infects Object.prototype with a non enumerable property if the browser
+// correctly supports Object.defineProperty or silently skips it, leaving the
+// infection unset.
+//
+// But if the user has set the +MT_FORCE_LEGACY+ variable to a truthy value,
+// then the infection is set as a regular property on Object.prototype itself,
+// so that it will work exactly the same.
+//
+// This is UGLY, VIOLENT and HAZARDLY DANGEROUS, especially when not checking
+// for hasOwnProperty within for in loops, but it works.
+//
+var infectMethod = function (property, fn) {
+    // infects Object.prototype with a non enumerable property:
+    if (supportsDefineProperty) {
+        return Object.defineProperty(Object.prototype, property, {
+            set: function () {},
+            get: function () {
+                var self = this;
+                return function () { return fn.apply(self, arguments); };
+            },
+            enumerable: false,
+            configurable: true
+        });
+    }
+
+    // WARNING: directly sets the method on Object.prototype:
+    if (typeof MT_FORCE_LEGACY !== 'undefined' && MT_FORCE_LEGACY) {
+        Object.prototype[property] = fn;
+    }
+};
+
 module.exports = {
     deepEqual: deepEqual,
     empty: empty,
+    isNumber: isNumber,
+    isString: isString,
+
     interpolate: interpolate,
     message: message,
     inspect: inspect,
-    isNumber: isNumber,
-    isString: isString
+
+    infectMethod: infectMethod,
+    supportsDefineProperty: supportsDefineProperty
 };
 
 });var exp = require('minitest');if ("undefined" != typeof module) module.exports = exp;else minitest = exp;
