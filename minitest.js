@@ -206,12 +206,13 @@ var infectAnAssertion = function (assertion, type, name, dontFlip) {
 
     if (!!dontFlip) {
         fn = function () {
-            assertion.apply(null, [this].concat(arguments));
+            var args = Array.prototype.slice.call(arguments);
+            return assertion.apply(null, [this].concat(args));
         };
     } else {
         fn = function () {
             var args = Array.prototype.slice.call(arguments, 1);
-            assertion.apply(null, [arguments[0], this].concat(args));
+            return assertion.apply(null, [arguments[0], this].concat(args));
         };
     }
 
@@ -221,7 +222,7 @@ var infectAnAssertion = function (assertion, type, name, dontFlip) {
     Expectations[type + camelName] = fn;
 
     Matcher.prototype[prefix + camelName] = function () {
-        fn.apply(this.actual, arguments);
+        return fn.apply(this.actual, arguments);
     };
 };
 
@@ -233,12 +234,12 @@ infectAnAssertion(assert.inEpsilon, 'must', 'beWithinEpsilon');
 infectAnAssertion(assert.includes, 'must', 'include', 'reverse');
 infectAnAssertion(assert.instanceOf, 'must', 'beInstanceOf');
 infectAnAssertion(assert.typeOf, 'must', 'beTypeOf');
-infectAnAssertion(assert.matches, 'must', 'match');
+infectAnAssertion(assert.match, 'must', 'match');
 //infectAnAssertion(assert.nil, 'must', 'beNil', 'reverse');
 //infectAnAssertion(assert.operator, 'mustBe', 'reverse');
 //infectAnAssertion(assert.respondTo, 'must', 'respondTo', 'reverse');
 infectAnAssertion(assert.same, 'must', 'beSameAs');
-infectAnAssertion(assert.throws, 'must', 'throws');
+infectAnAssertion(assert.throws, 'must', 'throw');
 
 infectAnAssertion(refute.empty, 'wont', 'beEmpty', 'unary');
 infectAnAssertion(refute.equal, 'wont', 'equal');
@@ -248,7 +249,7 @@ infectAnAssertion(refute.inEpsilon, 'wont', 'beWithinEpsilon');
 infectAnAssertion(refute.includes, 'wont', 'include', 'reverse');
 infectAnAssertion(refute.instanceOf, 'wont', 'beInstanceOf');
 infectAnAssertion(refute.typeOf, 'wont', 'beTypeOf');
-infectAnAssertion(refute.matches, 'wont', 'match');
+infectAnAssertion(refute.match, 'wont', 'match');
 //infectAnAssertion(refute.nil, 'wont', 'beNil', 'reverse');
 //infectAnAssertion(refute.operator, 'wont', 'be', 'reverse');
 //infectAnAssertion(refute.respondTo, 'wont', 'respondTo', 'reverse');
@@ -557,13 +558,15 @@ var times = function (str, count) {
 // 3) IE9 has a bug where +this+ in a getter on Number is always +0+.
 
 var supportsDefineProperty = false;
+var supportsDefinePropertyOnNumber = false;
 
 if (Object.defineProperty) {
     try {
         Object.defineProperty(Object.prototype, '__mt_test_define_property', {
             get: function () { return this; }, configurable: true
         });
-        supportsDefineProperty = (101).__mt_test_define_property == 101;
+        supportsDefineProperty = true,
+        supportsDefinePropertyOnNumber = (101).__mt_test_define_property == 101;
         delete Object.prototype.__mt_test_define_property;
     } catch (error) {}
 }
@@ -582,6 +585,13 @@ if (Object.defineProperty) {
 var infectMethod = function (property, fn) {
     // infects Object.prototype with a non enumerable property:
     if (supportsDefineProperty) {
+        if (!supportsDefinePropertyOnNumber) {
+            // fixes IE9's where +this+ in a getter on Number is always +0+ by
+            // setting a method on Number.prototype directly, which should be
+            // safe enough:
+            Number.prototype[property] = fn;
+        }
+
         return Object.defineProperty(Object.prototype, property, {
             set: function () {},
             get: function () {
