@@ -1,5 +1,5 @@
 module.exports = function(grunt) {
-    // saucelabs
+
     var browsers = [
         { browserName: "chrome", platform: "XP" } //,
         //{ browserName: "chrome", platform: "Linux" },
@@ -15,13 +15,12 @@ module.exports = function(grunt) {
         //{ browserName: "android", platform: "Linux", version: "4.0" }
     ];
 
-    // configurations
     grunt.initConfig({
         connect: {
-            server: {
-                options: { base: "", port: 9999 }
-            }
+            dev:  { options: { base: "", port: 9292, keepalive: true } },
+            test: { options: { base: "", port: 9999 } }
         },
+
         'saucelabs-mocha': {
             all: {
                 options: {
@@ -30,20 +29,18 @@ module.exports = function(grunt) {
                     build: process.env.TRAVIS_JOB_ID,
                     concurrency: 1,
                     browsers: browsers,
-                    testname: "minitest.js test suite",
-                    tags: ["master"]
+                    testname: "minitest.js"
                 }
             }
-        },
-        watch: {}
+        }
     });
 
-    // dependencies
     for (var key in grunt.file.readJSON("package.json").devDependencies) {
-        if (key !== "grunt" && key.indexOf("grunt") === 0) grunt.loadNpmTasks(key);
+        if (key !== "grunt" && key.indexOf("grunt") === 0) {
+            grunt.loadNpmTasks(key);
+        }
     }
 
-    // tasks
     grunt.registerTask('mocha', 'run mocha test suite', function () {
         var done = this.async();
         require('child_process').exec('mocha', function (err, stdout) {
@@ -51,11 +48,11 @@ module.exports = function(grunt) {
             done(err);
         });
     });
-    grunt.registerTask("dev",  ["connect", "watch"]);
 
     if (!!process.env.SAUCELABS) {
-        grunt.registerTask("test", ["mocha", "connect", "saucelabs-mocha"]);
+        grunt.registerTask("test", ["mocha", "connect:test", "saucelabs-mocha"]);
     } else {
         grunt.registerTask("test", ["mocha"]);
     }
+
 };
