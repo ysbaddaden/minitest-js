@@ -19,14 +19,14 @@ test suite.
 
 Minitest.js can be used from both Node.js and the browser. Any recent browser
 that correctly supports ECMAScript 5 (ES5) should be fully supported —ie.
-Internet Explorer 10+, Firefox 4+, Safari 5.1+, etc.
+Internet Explorer 9+, Firefox 4+, Safari 5.1+, etc.
 Partial support can be enabled in olders browsers thanks to the
 [es5-shim](https://github.com/kriskowal/es5-shim) & es5-sham polyfills, but it
 won't enable the `actual.mustEqual(expected)` notation for example.
 
 Bottom line: **if you stick to assertions, expect and mocks, any browser
 should be compatible** (from Internet Explorer 6+). **To use matchers you need a
-modern engine** (from Internet Explorer 10+, Firefox 4+, etc).
+modern engine** (from Internet Explorer 9+, Firefox 4+, etc).
 
 ## Differences with CommonJS' Unit_Testing/1.0
 
@@ -293,7 +293,7 @@ when legacy browsers must be supported.
 
 Matchers extend `Object.prototype` with non enumerable methods (thanks to
 Object.defineProperty). Sadly only modern engines do support it correctly
-(eg: Node.js, Internet Explorer 10+, Firefox 4+, etc).
+(eg: Node.js, Internet Explorer 9+, Firefox 4+, etc).
 
 That being said, if you only target Node.js and/or modern browsers, just use it!
 
@@ -406,7 +406,7 @@ stub(Date, 'now', 0, function () {
 refute.equal(0, Date.now());
 ```
 
-On modern browsers (IE 10+ and FF 4+), Object's prototype is infected with the
+On modern browsers (IE 9+ and FF 4+), Object's prototype is infected with the
 non enumerable `stub` method, so you can:
 
 ```javascript

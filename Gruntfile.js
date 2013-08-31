@@ -17,7 +17,7 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         connect: {
-            dev:  { options: { base: "", port: 9292, keepalive: true } },
+            dev: { options: { base: "", hostname: "0.0.0.0", port: 9292, keepalive: true } },
             test: { options: { base: "", port: 9999 } }
         },
 
