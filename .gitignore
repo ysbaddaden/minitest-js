@@ -1,4 +1,6 @@
-node_modules/
-report/
 *.log
 *.log.*
+.env
+node_modules/
+report/
+vendor/
