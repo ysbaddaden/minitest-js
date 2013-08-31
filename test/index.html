@@ -12,6 +12,9 @@
     <script src="support/mocha.js"></script>
 
     <script>
+      var MT_NO_EXPECTATIONS = false;
+      var MT_FORCE_LEGACY = true;
+
       onload = function () {
         mocha.setup('bdd');
         mocha.checkLeaks();
