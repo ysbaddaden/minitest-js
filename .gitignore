@@ -1,0 +1,5 @@
+.env
+*.log
+*.log.*
+node_modules
+vendor
