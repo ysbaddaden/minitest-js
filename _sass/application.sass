@@ -1,0 +1,44 @@
+//@import url(http://fonts.googleapis.com/css?family=Open+Sans:800|Vollkorn:400italic,400,700)
+@import url(http://fonts.googleapis.com/css?family=PT+Sans+Narrow:800|PT+Sans:400,700,400italic)
+@import normalize
+@import foundation/variables
+@import foundation/global
+@import foundation/grid
+@import foundation/type
+@import foundation/side-nav
+@import foundation/sub-nav
+@import foundation/section
+
+$white: #f0e7d5
+$anthracite: #2a2a29
+//$yellow: #e6b800
+
+.tab
+  margin-bottom: 0
+
+.tab-panel
+  display: none
+  &.active
+    display: block
+
+body
+  padding: 1.5em
+
+.highlight
+  background: white
+  code
+    font-size: emCalc(14px)
+
+*:not([data-section-content]) > .highlight
+  border: 1px solid #ccc
+  padding: 1.5em
+  margin-bottom: 1.5em
+
+#article
+  p, ul, li
+    text-align: justify
+
+#footer
+  font-size: $small-font-size
+  text-align: center
+

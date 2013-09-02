@@ -1,0 +1,110 @@
+<p>Assuming we'd like to test this object:</p>
+
+{% highlight javascript %}
+var Meme = function () {};
+
+Meme.prototype = {
+  i_can_has_cheezburger: function () {
+    return "OHAI!";
+  },
+
+  will_it_blend: function () {
+    return "YES!";
+  }
+};
+{% endhighlight %}
+
+<div class="section-container tabs" data-section="tabs">
+  <section class="active">
+    <p class="title" data-section-title>
+      <a href="#unit">Unit</a>
+    </p>
+    <div class="content" data-section-content>
+{% highlight javascript %}
+var assert = require("minitest").assert;
+var refute = require("minitest").refute;
+
+var meme = new Meme();
+assert.equal("OHAI!", meme.i_can_has_cheezburger());
+refute.match(/^no/i, meme.will_it_blend());
+{% endhighlight %}
+    </div>
+  </section>
+
+  <section>
+    <p class="title" data-section-title>
+      <a href="#spec">Spec</a>
+    </p>
+    <div class="content" data-section-content>
+{% highlight javascript %}
+require("minitest/spec");
+
+var meme = new Meme();
+meme.i_can_has_cheezburger().mustEqual("OHAI!");
+meme.will_it_blend().wontMatch(/^no/i);
+{% endhighlight %}
+    </div>
+  </section>
+
+  <section>
+    <p class="title" data-section-title>
+      <a href="#expect">Expect</a>
+    </p>
+    <div class="content" data-section-content>
+{% highlight javascript %}
+var expect = require("minitest").expect;
+
+var meme = new Meme();
+expect(meme.i_can_has_cheezburger()).toEqual("OHAI!");
+expect(meme.will_it_blend()).toNotMatch(/^no/i);
+{% endhighlight %}
+    </div>
+  </section>
+
+  <section>
+    <p class="title" data-section-title>
+      <a href="#mock">Mock</a>
+    </p>
+    <div class="content" data-section-content>
+{% highlight javascript %}
+require("minitest/spec");
+var Mock = require("minitest").Mock;
+
+var MemeAsker = function (meme) {
+  this.meme = meme;
+};
+MemeAsker.prototype.ask = function (question) {
+  var method = question.replace(/ /g, "_");
+  return this.meme[method];
+};
+
+var meme = new Mock();
+var memeAsker = new MemeAsker(meme);
+
+meme.expect("will_it_blend", "NO!");
+memeAsker.ask("will it blend").mustEqual("NO!");
+meme.verify();
+{% endhighlight %}
+    </div>
+  </section>
+
+  <section>
+    <p class="title" data-section-title>
+      <a href="#stub">Stub</a>
+    </p>
+    <div class="content" data-section-content>
+{% highlight javascript %}
+var assert = require("minitest").assert;
+require("minitest/stub");
+
+var meme = new Meme();
+meme.stub("will_it_blend", "NO!", function () {
+  assert.equal("NO!", meme.will_it_blend());
+});
+
+// stub goes away once the callback is done
+assert.equal("YES!", meme.will_it_blend());
+{% endhighlight %}
+    </div>
+  </section>
+</div>
