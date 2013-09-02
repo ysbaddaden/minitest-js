@@ -29,6 +29,7 @@
                 var title = section.querySelector("[data-section-title]");
 
                 title.style.left = left + 'px';
+                title.style.width = title.clientWidth + 'px';
                 title.style.height = '50px';
                 section.style.paddingTop = '49px';
 
