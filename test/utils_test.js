@@ -2,6 +2,72 @@ describe("utils", function () {
     var assert = require('../lib/minitest').assert;
     var utils  = require('../lib/minitest/utils');
 
+    describe(".type", function () {
+        it("must detect null", function () {
+            assert.equal('null', utils.type(null));
+        });
+
+        it("must detect undefined", function () {
+            assert.equal('undefined', utils.type(undefined));
+        });
+
+        it("must detect boolean", function () {
+            assert.equal('boolean', utils.type(true));
+            assert.equal('boolean', utils.type(false));
+        });
+
+        it("must detect number primitive", function () {
+            assert.equal('number', utils.type(1));
+            assert.equal('number', utils.type(123.45));
+            assert.equal('number', utils.type(new Number(1)));
+            assert.equal('number', utils.type(new Number(1.2)));
+        });
+
+        it("must detect string primitive", function () {
+            assert.equal('string', utils.type(""));
+            assert.equal('string', utils.type(new String("")));
+        });
+
+        it("must detect regexp", function () {
+            assert.equal('regexp', utils.type(/.+/));
+            assert.equal('regexp', utils.type(new RegExp(/^\s*$/)));
+        });
+
+        it("must detect array", function () {
+            assert.equal('array', utils.type([]));
+            assert.equal('array', utils.type(new Array(0)));
+            assert.equal('array', utils.type(Array.prototype));
+        });
+
+        it("must detect object", function () {
+            assert.equal('object', utils.type({}));
+        });
+
+        it("must detect error object", function () {
+            assert.equal('error', utils.type(new Error("msg")));
+            assert.equal('error', utils.type(new TypeError("msg")));
+            assert.equal('error', utils.type(new RangeError("msg")));
+        });
+
+        it("must detect custom error object", function () {
+            var CustomError = function CustomError(message) {
+                Error.apply(this, arguments);
+            };
+            CustomError.prototype = Object.create(Error.prototype);
+            CustomError.prototype.constructor = CustomError;
+            CustomError.prototype.name = 'CustomError';
+
+            var err = new CustomError("msg");
+            assert.equal('error', utils.type(err));
+            assert.equal('CustomError', String(err));
+        });
+
+        it("must detect function", function () {
+            assert.equal('function', utils.type(function () {}));
+            assert.equal('function', utils.type(Object));
+        });
+    });
+
     describe(".inspect", function () {
         if (String(arguments) === '[object Arguments]') {
             it("must inspect function arguments as array", function () {

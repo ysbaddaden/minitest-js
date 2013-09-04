@@ -1,5 +1,6 @@
 (function(){var global = this;function debug(){return debug};function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("minitest.js", function(module, exports, require, global){
 var Assertions = require('./minitest/assertions');
+var Expectations = require('./minitest/expectations');
 require('./minitest/spec');
 
 module.exports = {
@@ -7,22 +8,32 @@ module.exports = {
               Mock: require('./minitest/mock'),
               stub: require('./minitest/stub'),
             assert: Assertions.assert,
-            refute: Assertions.refute
+            refute: Assertions.refute,
+            expect: Expectations.expect
 };
 
 });require.register("minitest/assertions.js", function(module, exports, require, global){
 var utils = require('./utils');
 var nil = null;
 
-var AssertionError = function (message, expected, actual) {
+function AssertionError(message, expected, actual) {
     var msg = typeof message === 'function' ? message() : message;
+
     Error.call(this, msg);
     this.message = msg;
-    if (Error.captureStackTrace) Error.captureStackTrace.call(this, arguments.callee);
-    if (expected) this.expected = utils.inspect(expected);
-    if (actual) this.actual = utils.inspect(actual);
-};
+
+    if (Error.captureStackTrace) {
+        Error.captureStackTrace.call(this, arguments.callee);
+    }
+    if (expected) {
+        this.expected = utils.inspect(expected);
+    }
+    if (actual) {
+        this.actual = utils.inspect(actual);
+    }
+}
 AssertionError.prototype = Object.create(Error.prototype);
+AssertionError.prototype.constructor = AssertionError;
 
 var assert = function (test, msg) {
     if (!test) throw new AssertionError(msg || "Failed assertion, no message given.");
@@ -42,18 +53,18 @@ assert.block = function (callback, msg) {
 
 assert.same = function (expected, actual, msg) {
     return assert(actual === expected,
-        utils.message(msg, "Expected %{act} to be ===\n%{exp}", {act: actual, exp: expected}, ""));
+        utils.message(msg, "Expected %{act} to be === %{exp}", {act: actual, exp: expected}, ""));
 };
 
 refute.same = function (expected, actual, msg) {
     return refute(actual === expected,
-        utils.message(msg, "Expected %{act} to be !==\n%{exp}", {act: actual, exp: expected}, ""));
+        utils.message(msg, "Expected %{act} to be !== %{exp}", {act: actual, exp: expected}, ""));
 };
 
 assert.equal = function (expected, actual, msg) {
     if (!utils.deepEqual(actual, expected)) {
         throw new AssertionError(
-            utils.message(msg, "Expected %{act} to be equal to\n%{exp}", {act: actual, exp: expected}, ""),
+            utils.message(msg, "Expected %{act} to be equal to %{exp}", {act: actual, exp: expected}, ""),
             expected, actual);
     }
     return true;
@@ -62,7 +73,7 @@ assert.equal = function (expected, actual, msg) {
 refute.equal = function (expected, actual, msg) {
     if (utils.deepEqual(actual, expected)) {
         throw new AssertionError(
-            utils.message(msg, "Expected %{act} to be equal to\n%{exp}", {act: actual, exp: expected}, ""),
+            utils.message(msg, "Expected %{act} to not be equal to %{exp}", {act: actual, exp: expected}, ""),
             expected, actual);
     }
     return true;
@@ -114,10 +125,12 @@ refute.includes = function (collection, obj, msg) {
 };
 
 assert.throws = function (error, callback, msg) {
-    if (!callback) {
+    if (!callback || typeof callback === 'string') {
+        msg = callback;
         callback = error;
         error = undefined;
     }
+
     try {
         callback();
     } catch (ex) {
@@ -126,6 +139,7 @@ assert.throws = function (error, callback, msg) {
         }
         throw ex;
     }
+
     throw new AssertionError(error ?
         utils.message(msg, "%{error} expected but nothing was thrown", {error: error}) :
         utils.message(msg, "Exception expected but nothing was thrown")
@@ -157,28 +171,13 @@ refute.instanceOf = function (expected, actual, msg) {
 refute.instance_of = refute.instanceOf;
 
 assert.typeOf = function (expected, actual, msg) {
-    switch (expected) {
-    case 'string':
-        return assert(utils.isString(actual),
-            utils.message(msg, "Expected %{act} to be of type 'string' not %{type}", {act: actual, type: typeof actual}));
-    case 'number':
-        return assert(utils.isNumber(actual),
-            utils.message(msg, "Expected %{act} to be of type 'number' not %{type}", {act: actual, type: typeof actual}));
-    case 'array':
-        return assert(Array.isArray(actual),
-            utils.message(msg, "Expected %{act} to be of type 'array' not %{type}", {act: actual, type: typeof actual}));
-    }
-    return assert(typeof actual === expected,
-        utils.message(msg, "Expected %{act} to be of type %{exp} not %{type}", {act: actual, exp: expected, type: typeof actual}));
+    return assert(utils.type(actual) === expected,
+        utils.message(msg, "Expected %{act} to be of type %{exp} not %{type}", {act: actual, exp: expected, type: utils.type(actual)}));
 };
 assert.type_of = assert.typeOf;
 
 refute.typeOf = function (expected, actual, msg) {
-    if (expected === 'array') {
-        return refute(Array.isArray(actual),
-            utils.message(msg, "Expected %{act} to not be of type 'array'", {act: actual}));
-    }
-    return refute(typeof actual === expected,
+    return refute(utils.type(actual) === expected,
         utils.message(msg, "Expected %{act} to not be of type %{exp}", {act: actual, exp: expected}));
 };
 refute.type_of = refute.typeOf;
@@ -217,13 +216,13 @@ var infectAnAssertion = function (assertion, type, name, dontFlip) {
     }
 
     var camelName = name.charAt(0).toUpperCase() + name.slice(1);
-    var prefix = type === 'must' ? 'to' : 'toNot';
-
     Expectations[type + camelName] = fn;
 
+    var prefix = type === 'must' ? 'to' : 'toNot';
     Matcher.prototype[prefix + camelName] = function () {
         return fn.apply(this.actual, arguments);
     };
+    Matcher.prototype[type + camelName] = Matcher.prototype[prefix + camelName];
 };
 
 infectAnAssertion(assert.empty, 'must', 'beEmpty', 'unary');
@@ -235,7 +234,7 @@ infectAnAssertion(assert.includes, 'must', 'include', 'reverse');
 infectAnAssertion(assert.instanceOf, 'must', 'beInstanceOf');
 infectAnAssertion(assert.typeOf, 'must', 'beTypeOf');
 infectAnAssertion(assert.match, 'must', 'match');
-//infectAnAssertion(assert.nil, 'must', 'beNil', 'reverse');
+//infectAnAssertion(assert.null, 'must', 'beNull', 'reverse');
 //infectAnAssertion(assert.operator, 'mustBe', 'reverse');
 //infectAnAssertion(assert.respondTo, 'must', 'respondTo', 'reverse');
 infectAnAssertion(assert.same, 'must', 'beSameAs');
@@ -250,7 +249,7 @@ infectAnAssertion(refute.includes, 'wont', 'include', 'reverse');
 infectAnAssertion(refute.instanceOf, 'wont', 'beInstanceOf');
 infectAnAssertion(refute.typeOf, 'wont', 'beTypeOf');
 infectAnAssertion(refute.match, 'wont', 'match');
-//infectAnAssertion(refute.nil, 'wont', 'beNil', 'reverse');
+//infectAnAssertion(refute.null, 'wont', 'beNull', 'reverse');
 //infectAnAssertion(refute.operator, 'wont', 'be', 'reverse');
 //infectAnAssertion(refute.respondTo, 'wont', 'respondTo', 'reverse');
 infectAnAssertion(refute.same, 'wont', 'beSameAs');
@@ -282,12 +281,13 @@ module.exports = {
 var utils = require('./utils');
 var nil = null;
 
-var MockExpectationError = function (message) {
+function MockExpectationError(message) {
     Error.call(this, message);
     this.message = message;
     if (Error.captureStackTrace) Error.captureStackTrace.call(this, arguments.callee);
-};
+}
 MockExpectationError.prototype = Object.create(Error.prototype);
+MockExpectationError.prototype.constructor = MockExpectationError;
 
 var argsEqual = function (expected, actual) {
     return expected.every(function (value, i) {
@@ -429,6 +429,35 @@ module.exports = stub;
 });require.register("minitest/utils.js", function(module, exports, require, global){
 var nil = null;
 
+var type = function (val) {
+    var _type = typeof val;
+    if (_type === 'object') {
+        if (val === null)          return 'null';
+        if (val instanceof Number) return 'number';
+        if (val instanceof String) return 'string';
+        if (val instanceof RegExp) return 'regexp';
+        if (val instanceof Error)  return 'error';
+        try {
+            if (String(val) === '[object Arguments]') {
+                return 'arguments';
+            }
+        } catch (err) {
+            if (!(err instanceof TypeError)) {
+                throw err;
+            }
+        }
+    }
+    if (Array.isArray(val)) {
+        return 'array';
+    }
+    return _type;
+};
+
+var empty = function (test) {
+    if (test == nil || test.length === 0) return true;
+    if (typeof test === 'object' && Object.keys(test).length === 0) return true;
+};
+
 var deepEqual = function (actual, expected) {
     if (actual === expected) {
         return true;
@@ -454,11 +483,6 @@ var deepEqual = function (actual, expected) {
     return true;
 };
 
-var empty = function (test) {
-    if (test == nil || test.length === 0) return true;
-    if (typeof test === 'object' && Object.keys(test).length === 0) return true;
-};
-
 var interpolate = function (str, interpolations) {
     for (var key in interpolations) {
         if (interpolations.hasOwnProperty(key)) {
@@ -475,30 +499,24 @@ var message = function (msg, default_msg, interpolations, ending) {
     };
 };
 
-var isNumber = function (val) {
-    return typeof val === 'number' || val instanceof Number;
-};
-
-var isString = function (val) {
-    return typeof val === 'string' || val instanceof String;
-};
-
 // inspect is extracted from Prototype © Prototype Core Team
 // https://github.com/sstephenson/prototype
 var inspect = function (object) {
     try {
-        if (object === undefined)       return 'undefined';
-        if (object === null)            return 'null';
-        if (isNumber(object))           return String(object);
-        if (isString(object))           return inspectString(object);
-        if (Array.isArray(object))      return inspectArray(object);
-        try {
-            if (String(object) === '[object Arguments]') return inspectArray(object);
-        } catch (e) {}
-        if (typeof object === 'object') return inspectObject(object);
-        return String(object);
+        switch (type(object)) {
+        case 'undefined': return 'undefined';
+        case 'null':      return 'null';
+        case 'string':    return inspectString(object);
+        case 'array':
+        case 'arguments': return inspectArray(object);
+        case 'object':    return inspectObject(object);
+        case 'function':  return object.name || String(object);
+        default:          return String(object);
+        }
     } catch (e) {
-        if (e instanceof RangeError) return '...';
+        if (e instanceof RangeError) {
+            return '...';
+        }
         throw e;
     }
 };
@@ -612,8 +630,7 @@ var infectMethod = function (property, fn) {
 module.exports = {
     deepEqual: deepEqual,
     empty: empty,
-    isNumber: isNumber,
-    isString: isString,
+    type: type,
 
     interpolate: interpolate,
     message: message,

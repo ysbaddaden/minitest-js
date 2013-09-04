@@ -116,7 +116,7 @@ describe("Expectations", function () {
     });
 
     describe("expect()", function () {
-        var expect = require('../lib/minitest/expectations').expect;
+        var expect = require('../lib/minitest').expect;
 
         it(".toBeEmpty", function () {
             expect([]).toBeEmpty();
