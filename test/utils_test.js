@@ -55,11 +55,10 @@ describe("utils", function () {
             };
             CustomError.prototype = Object.create(Error.prototype);
             CustomError.prototype.constructor = CustomError;
-            CustomError.prototype.name = 'CustomError';
 
             var err = new CustomError("msg");
             assert.equal('error', utils.type(err));
-            assert.equal('CustomError', String(err));
+            assert.match('CustomError|[object Error]', String(err)); // older IEs always return [object Error]
         });
 
         it("must detect function", function () {

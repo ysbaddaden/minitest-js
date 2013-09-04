@@ -426,8 +426,8 @@ describe("Assertions", function () {
             it("won't be an AssertionError", function () {
                 refute.instanceOf(AssertionError, {});
 
-                var e = assert.failure(function () { refute.instanceOf(AssertionError, new AssertionError("message")); });
-                assert.equal("Expected Error: message to not be an instance of AssertionError.", e.message);
+                var e = assert.failure(function () { refute.instanceOf(Error, new Error("message")); });
+                assert.match(/Expected (Error: message|\[object Error\]) to not be an instance of Error./, e.message);
             });
         });
     });
