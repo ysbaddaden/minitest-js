@@ -37,6 +37,10 @@ describe("Assertions", function () {
             it("'2' 2",               function () { assert.equal('2', 2); });
             it("true true",           function () { assert.equal(true, true); });
 
+            it("null []", function () {
+                assert.failure(function () { assert.equal(null, []); });
+            });
+
             it("date", function () {
                 assert.equal(new Date(2000,3,14), new Date(2000,3,14));
             });
