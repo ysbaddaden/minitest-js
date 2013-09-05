@@ -6,26 +6,27 @@ layout: application
 # Spec
 
 The must and wont specs of minitest are indeed available, thought they don't
-exactly fit into the JavaScript the language.
+exactly fit into the JavaScript language.
 
 ## Limitations
 
 ### Not Everything Is An Object
 
 `null`, `undefined`, `true` and `false` are singleton primitives in javascript,
-with no objects to back them up (unlike NilClass in Ruby), so it's impossible to
-have `test.mustBeNull()` for instance. Also tests will break with non helpful
-messages when a method starts to return undefined instead of the object it's
-supposed to. For example:
+with no objects to back them up, so it's impossible to have `test.mustBeNull()`
+for instance. Also tests will break with non helpful messages when a method
+starts to return `undefined` or `null` instead of the object it's supposed to.
+For example:
 
 ```javascript
 var rng = range(1, 3);
 rng.mustEqual([1, 2, 3]);
 ```
 
-Would `range()` start to return `undefined`, the test would break with "Expected
-[1, 2, 3] but got nil" in Ruby, but in JavaScript you'll get a "TypeError:
-Cannot call method 'mustEqual' of undefined". Not exactly what we'd expect.
+Would the `range` function start to return `undefined`, the test would break
+with "Expected [1, 2, 3] but got nil" in Ruby, but in JavaScript you'll get a
+"TypeError: Cannot call method 'mustEqual' of undefined". Not exactly what we'd
+expect.
 
 ### Browser Support
 
@@ -37,27 +38,26 @@ really capable to handle it.
 Internet Explorer 9 is somehow supported by minitest.js but there is at least
 one bug that forced us to extend `Number.prototype` with methods directly in
 addition of adding non enumerable properties to `Object.prototype`. It
-shouldn't happen to be a problem, but maybe it has other bugs we are not yet
-aware of, that could prevent it's correct support.
-
+shouldn't be a problem, but maybe it has other bugs, that we aren't yet aware
+of, that would prevent it's correct support.
 
 ### Expect Fits Better
 
-As a personal opinion, I believe `expect()` fits JavaScript better than specs,
+As a personal opinion, I think `expect()` fits JavaScript better than specs,
 especially when you need a large browser support. The previous example,
-expressed with expect would look like the following, and will break correctly
-—ie. with a nice message.
+expressed with expect would look like the following:
 
 ```javascript
 var rng = range(1, 3);
 expect(rng).toEqual([1, 2, 3]);
 ```
 
-It's not much different, except for using `to` instead of `must`, will break
-nicely with "Expected [1, 2, 3] but got undefined", and is compatible with any
-browser (Internet Explorer 6+).
+It's not much different, except for using `to` instead of `must` (thought must
+and wont are available as aliases), will break nicely with "Expected [1, 2, 3]
+but got undefined", and is compatible with any browser (eg: Internet Explorer
+6+).
 
-[Learn more about expect()](/doc/expect.html)
+[Learn more about expect()](expect.html)
 
 ## Usage
 

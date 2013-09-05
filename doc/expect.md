@@ -26,26 +26,35 @@ var expect = minitest.expect;
 
 ## API
 
-### expect(test).toBeEmpty([message])
+All expectations have the following form:
 
-Succeeds if test is empty (eg: empty string, array or object).
+```javascript
+expect(actual).toEqual(expected);
+expect(test).toNotBempty();
+```
+
+### .toBeEmpty([message])<br/><small>Also aliased as: mustBeEmpty</small>
+
+Succeeds if test is empty (eg: empty string, array or object). Also succeeds if
+test is null or undefined.
 
 ```javascript
 expect("").toBeEmpty();
 expect([]).toBeEmpty();
+expect(null).toBeEmpty();
 ```
 
-### expect(test).toNotBeEmpty([message])
+### .toNotBeEmpty([message])<br/><small>Also aliased as: wontBeEmpty</small>
 
 Succeeds if test isn't empty (eg: empty string, array or object).
 
 ```javascript
-expect("h)tml".toNotBeEmpty();
+expect("html".toNotBeEmpty();
 expect([1, 2, 3]).toNotBeEmpty();
 expect({a: 1}).toNotBeEmpty();
 ```
 
-### expect(collection).toInclude(obj, [message])
+### .toInclude(obj, [message])<br/><small>Also aliased as: mustInclude</small>
 
 Succeeds if collection includes obj.
 
@@ -54,7 +63,7 @@ expect([1, 2, 3]).toInclude(1);
 expect("hello world").toInclude("world");
 ```
 
-### expect(collection).toNotInclude(obj, [message])
+### .toNotInclude(obj, [message])<br/><small>Also aliased as: wontInclude</small>
 
 Succeeds unless collection includes obj.
 
@@ -62,7 +71,7 @@ Succeeds unless collection includes obj.
 expect([1, 2, 3]).toNotInclude(4);
 ```
 
-### expect(actual).toEqual(expected, [message])
+### .toEqual(expected, [message])<br/><small>Also aliased as: mustEqual</small>
 
 Succeeds if actual *equals* expected; but instead of relying on the (unreliable)
 `==` operator, it conforms to the deep equality definition of CommonJS Unit
@@ -74,7 +83,7 @@ expect(1).toEqual('1');
 expect({colors: ['red', 'green']}).toEqual({colors: ['red', 'green']});
 ```
 
-### expect(actual).toNotEqual(expected, [message])
+### .toNotEqual(expected, [message])<br/><small>Also aliased as: wontEqual</small>
 
 Succeeds unless actual *equals* expected. Again, it doesn't use the `==`
 operator, but the CommonJS Unit Testing/1.0 definition of deep equality.
@@ -84,7 +93,7 @@ expect(1).toNotEqual(2);
 expect({colors: ['red', 'green']}).toNotEqual({colors: ['blue', 'green']});
 ```
 
-### expect(actual).toBeSameAs(expected, [message])
+### .toBeSameAs(expected, [message])<br/><small>Also aliased as: mustBeSameAs</small>
 
 Succeeds if actual `===` expected.
 
@@ -94,7 +103,7 @@ expect(obj).toBeSameAs(obj);
 expect(1).toBeSameAs(1);
 ```
 
-### expect(actual).toNotBeSameAs(expected, [message])
+### .toNotBeSameAs(expected, [message])<br/><small>Also aliased as: wontBeSameAs</small>
 
 Succeeds unless actual `===` expected.
 
@@ -103,7 +112,7 @@ expect({a: 1}).toNotBeSameAs({a: 1});
 expect(1).toNotBeSameAs(2);
 ```
 
-### expect(actual).toBeWithinDelta(expected, delta = 0.001, [message])
+### .toBeWithinDelta(expected, delta = 0.001, [message])<br/><small>Also aliased as: mustBeWithinDelta, toBeCloseTo and mustBeCloseTo</small>
 
 For comparing floats, succeeds if actual is within delta of expected.
 
@@ -113,7 +122,7 @@ expect(0.999).toBeWithinDelta(1.0, 0.001);
 
 This method is also aliased as `.toBeCloseTo()`.
 
-### expect(actual).toNotBeWithinDelta(expected, delta = 0.001, [message])
+### .toNotBeWithinDelta(expected, delta = 0.001, [message])<br/><small>Also aliased as: wontBeWithinDelta, toNotBeCloseTo and wontBeCloseTo</small>
 
 For comparing floats, succeeds if actual is outside delta of expected.
 
@@ -123,7 +132,7 @@ expect(0.997).toBeWithinDelta(1.0, 0.001);
 
 This method is also aliased as `.toNotBeCloseTo()`.
 
-### expect(actual).toBeWithinEpsilon(expected, delta = 0.001, [message])
+### .toBeWithinEpsilon(expected, delta = 0.001, [message])<br/><small>Also aliased as: mustBeWithinEpsilon</small>
 
 For comparing floats, succeeds if actual is within relative error (epsilon) of
 expected.
@@ -133,7 +142,7 @@ expect(9991).toBeWithinEpsilon(10000, 0.001);
 expect(10000).toBeWithinEpsilon(9999.1, 0.0001);
 ```
 
-### expect(actual).toNotBeWithinEpsilon(expected, delta = 0.001, [message])
+### .toNotBeWithinEpsilon(expected, delta = 0.001, [message])<br/><small>Also aliased as: wontBeWithinEpsilon</small>
 
 For comparing floats, succeeds if actual is outside relative error (epsilon) of
 expected.
@@ -142,7 +151,7 @@ expected.
 expect(9990 - 1).toNotBeWithinEpsilon(10000);
 ```
 
-### expect(actual).toMatch(pattern, [message])
+### .toMatch(pattern, [message])<br/><small>Also aliased as: mustMatch</small>
 
 Succeeds if actual matches the pattern regular expression.
 
@@ -151,7 +160,7 @@ var BLANK = /^\s*$/;
 expect("  ").toMatch(BLANK);
 ```
 
-### expect(actual).toNotMatch(pattern, [message])
+### .toNotMatch(pattern, [message])<br/><small>Also aliased as: wontMatch</small>
 
 Succeeds unless actual matches the pattern regular expression.
 
@@ -160,7 +169,7 @@ var BLANK = /^\s*$/;
 expect("content").toNotMatch(BLANK);
 ```
 
-### expect(actual).toBeTypeOf(expected, [message])
+### .toBeTypeOf(expected, [message])<br/><small>Also aliased as: mustBeTypeOf</small>
 
 Succeeds if typeof actual == expected. It also conveniently supports an `'array'`
 type that isn't supported natively, and takes care to correctly compare Number
@@ -172,7 +181,7 @@ expect({}).toBeTypeOf('object');
 expect(new String("str")).toBeTypeOf('string');
 ```
 
-### expect(actual).toNotBeTypeOf(expected, [message])
+### .toNotBeTypeOf(expected, [message])<br/><small>Also aliased as: wontBeTypeOf</small>
 
 Succeeds unless typeof actual == expected. Again, it conveniently supports an
 `'array'` type that isn't supported natively, and takes care to correctly
@@ -184,7 +193,7 @@ expect(new String()).toBeTypeOf('object');
 expect(new String()).toBeTypeOf('string');
 ```
 
-### expect(actual).toBeInstanceOf(expected, [message])
+### .toBeInstanceOf(expected, [message])<br/><small>Also aliased as: mustBeInstanceOf</small>
 
 Succeeds if actual is an instance of expected.
 
@@ -193,7 +202,7 @@ expect([]).toBeInstanceOf(Array);
 expect({}).toBeInstanceOf(Object);
 ```
 
-### expect(actual).toNotBeInstanceOf(expected, [message])
+### .toNotBeInstanceOf(expected, [message])<br/><small>Also aliased as: wontBeInstanceOf</small>
 
 Succeeds unless actual is an instance of expected.
 
@@ -202,7 +211,7 @@ expect("").toNotBeInstanceOf(Array);
 expect(123).toNotBeInstanceOf(Object, 123);
 ```
 
-### expect(callback).toThrow([error], [message])
+### .toThrow([error], [message])<br/><small>Also aliased as: mustThrow</small>
 
 Succeeds if callback throws an exception of type error then returns the
 exception. If no error type is specified, then all expections are catched.

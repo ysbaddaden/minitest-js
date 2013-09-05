@@ -8,6 +8,12 @@ layout: application
 
 ## Usage
 
+Minitest.js is ready to be used with [mocha](http://visionmedia.github.io/mocha),
+but should be compatible with any test runner that is just waiting for
+exceptions. Minitest.js is also compatible with both Node.js and the Browser.
+Please see the examples below to get started.
+
+
 ### Node.js
 
 ```javascript
@@ -65,5 +71,17 @@ then prepare your HTML test suite. For example, using mocha:
   </script>
 </body>
 </html>
+```
+
+You might want to set the `MT_NO_EXPECTATIONS` global variable to true if you
+don't intent to use specs and would prefer Object to not be infected with
+expectations automatically. It must be defined before loading the built
+minitest.js file; for example:
+
+```html
+<script>
+var MT_NO_EXPECTATIONS = true;
+</script>
+<script src="test/support/minitest.js"></script>
 ```
 
