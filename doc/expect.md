@@ -211,6 +211,25 @@ expect("").toNotBeInstanceOf(Array);
 expect(123).toNotBeInstanceOf(Object, 123);
 ```
 
+### .toRespondTo(method, [message])<br/><small>Also aliased as: mustRespondTo</small>
+
+Succeeds if object has a callable property named method.
+
+```javascript
+expect(Array).toRespondTo('isArray');
+expect(Array.prototype).toRespondTo('forEach');
+expect("str").toRespondTo('toUpperCase');
+```
+
+### .toNotRespondTo(method, [message])<br/><small>Also aliased as: wontRespondTo</small>
+
+Succeeds unless object has a callable property named method.
+
+```javascript
+expect("str").toNotRespondTo('upcase');
+expect(MyObject.prototype).toNotRespondTo('methodName');
+```
+
 ### .toThrow([error], [message])<br/><small>Also aliased as: mustThrow</small>
 
 Succeeds if callback throws an exception of type error then returns the

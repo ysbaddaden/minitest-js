@@ -32,20 +32,22 @@ expect.
 
 Another problem is the limited browser support: ECMAScript 5's
 `Object.defineProperty()` must be natively supported, which means only modern
-browsers like Node.js, Firefox 4+, Safari 5.1+ or Internet Explorer 10+ are
+browsers like Node.js, Firefox 12+, Safari 5.1+ or Internet Explorer 10+ are
 really capable to handle it.
 
-Internet Explorer 9 is somehow supported by minitest.js but there is at least
-one bug that forced us to extend `Number.prototype` with methods directly in
-addition of adding non enumerable properties to `Object.prototype`. It
-shouldn't be a problem, but maybe it has other bugs, that we aren't yet aware
-of, that would prevent it's correct support.
+Internet Explorer 9 and Firefox 3.6 are somehow supported by minitest.js but
+there is at least one bug that forced us to extend `Number.prototype` for both
+and `String.prototype` for Firefox with methods directly in addition of
+adding non enumerable properties to `Object.prototype`. It shouldn't be a
+problem, but maybe they have other bugs, that we aren't yet aware of, that would
+prevent their correct support.
 
 ### Expect Fits Better
 
-As a personal opinion, I think `expect()` fits JavaScript better than specs,
-especially when you need a large browser support. The previous example,
-expressed with expect would look like the following:
+As a personal opinion, I think `expect()` fits JavaScript better than specs in
+you can't live with assertions, especially when you need a large browser
+support. The previous example, expressed with expect would look like the
+following:
 
 ```javascript
 var rng = range(1, 3);
@@ -249,6 +251,25 @@ Succeeds unless actual is an instance of expected.
 ```javascript
 "".wontBeInstanceOf(Array);
 (123).wontBeInstanceOf(Object, 123);
+```
+
+### object.mustRespondTo(method, [message])
+
+Succeeds if object has a callable property named method.
+
+```javascript
+Array.mustRespondTo('isArray');
+Array.prototype.mustRespondTo('forEach');
+"str".mustRespondTo('toUpperCase');
+```
+
+### object.wontRespondTo(method, [message])
+
+Succeeds unless object has a callable property named method.
+
+```javascript
+"str".wontRespondTo('upcase');
+MyObject.prototype.wontRespondTo('method');
 ```
 
 ### callback.mustThrow([error], [message])

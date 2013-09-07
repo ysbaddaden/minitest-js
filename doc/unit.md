@@ -234,6 +234,25 @@ refute.instanceOf(Array, "");
 refute.instanceOf(Object, 123);
 ```
 
+### assert.respondTo(object, method, [message])
+
+Succeeds if object has a callable property named method.
+
+```javascript
+assert.respondTo(Array, 'isArray');
+assert.respondTo(Array.prototype, 'forEach');
+assert.respondTo("str", 'toUpperCase');
+```
+
+### refute.respondTo(object, method, [message])
+
+Succeeds unless object has a callable property named method.
+
+```javascript
+refute.respondTo("str", 'upcase');
+refute.respondTo(Array.prototype, 'methodName');
+```
+
 ### assert.throws([error,] callback, [message])
 
 Succeeds if callback throws an exception of type error then returns the

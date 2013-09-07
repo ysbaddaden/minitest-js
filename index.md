@@ -25,17 +25,15 @@ modified to cope with javascript's weirdness, and thus somehow conform to the
 [CommonJS Unit Testing/1.0](http://wiki.commonjs.org/wiki/Unit_Testing/1.0)
 test suite (eg: deep equality).
 
+
 ## Browser Support
 
-Minitest.js virtually supports all and every javascript engines; thought there
-is one limitation: they must support ECMAScript 5, either natively or through a
-[polyfill](https://github.com/kriskowal/es5-shim). That shouldn't reduce the
-scope much, unless you intent to use the must/wont spec notation.
+Minitest.js assumes that your browser support ECMAScript 5, either natively or
+through a [polyfill](https://github.com/kriskowal/es5-shim) and can be used in
+any browser, back to Internet Explorer 6.
 
-The problem with the spec notation is that it requires to extend
-`Object.prototype` with methods (eg: `mustEqual`, `wontMatch`). This is achieved
-using non enumerable properties, to prevent side effects and clashes with other
-libraries, but it requires *native* support for `Object.defineProperty`, and
-that will reduce the scope of compatible browsers to modern browsers only
-(eg: Internet Explorer 9+, Firefox 4+ or Safari 5.1+).
+Spec expectations (eg: `mustEqual`), on the other end, do require native support
+for `Object.defineProperty`, which restrict support to modern engines only (eg:
+Node.js, Internet Explorer 10+, Firefox 12+, etc). But thanks to a little hack,
+we can support Firefox 3.6 and Internet Explorer 9 (unless we find another bug).
 
