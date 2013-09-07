@@ -12,6 +12,10 @@ describe("Assertions", function () {
     var ary = [1, 2, 3];
     var obj = {a: 1, b: 2, c: {1: 3}};
 
+    function Test() {}
+    Test.prototype.method = function () {};
+    Test.factory = function () {};
+
     describe("assert", function () {
         describe(".ok", function () {
             it("true", function () { assert.ok(true); });
@@ -301,6 +305,27 @@ describe("Assertions", function () {
                 assert.equal("Expected {} to be an instance of AssertionError.", e.message);
             });
         });
+
+        describe(".respondTo", function () {
+            it("must pass", function () {
+                assert.respondTo(Test, 'factory');
+                assert.respondTo(Test.prototype, 'method');
+                assert.respondTo("str", 'toUpperCase');
+            });
+
+            it("must fail", function () {
+                var e;
+
+                e = assert.failure(function () { assert.respondTo('str', 'unknownMethod'); });
+                assert.equal("Expected 'str' to respond to 'unknownMethod'.", e.message);
+
+                e = assert.failure(function () { assert.respondTo(Test, 'method'); });
+                assert.equal("Expected Test to respond to 'method'.", e.message);
+
+                e = assert.failure(function () { assert.respondTo(Test.prototype, 'factory'); });
+                assert.match("Expected .+ to respond to 'factory'.", e.message);
+            });
+        });
     });
 
     describe("refute", function () {
@@ -432,6 +457,27 @@ describe("Assertions", function () {
 
                 var e = assert.failure(function () { refute.instanceOf(Error, new Error("message")); });
                 assert.match(/Expected (Error: message|\[object Error\]) to not be an instance of Error./, e.message);
+            });
+        });
+
+        describe(".respondTo", function () {
+            it("must pass", function () {
+                refute.respondTo(Test.prototype, 'factory');
+                refute.respondTo(Test, 'method');
+                refute.respondTo("str", 'method');
+            });
+
+            it("must fail", function () {
+                var e;
+
+                e = assert.failure(function () { refute.respondTo('str', 'toUpperCase'); });
+                assert.match("Expected 'str' to not respond to 'toUpperCase'.", e.message);
+
+                e = assert.failure(function () { refute.respondTo(Test.prototype, 'method'); });
+                assert.match("Expected .+ to not respond to 'method'.", e.message);
+
+                e = assert.failure(function () { refute.respondTo(Test, 'factory'); });
+                assert.equal("Expected Test to not respond to 'factory'.", e.message);
             });
         });
     });

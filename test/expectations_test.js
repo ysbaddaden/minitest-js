@@ -4,6 +4,10 @@ var AssertionError = minitest.AssertionError;
 var assert         = minitest.assert;
 
 describe("Expectations", function () {
+    function Test() {}
+    Test.prototype.method = function () {};
+    Test.factory = function () {};
+
     describe("matchers", function () {
         require('../lib/minitest/spec');
 
@@ -113,6 +117,18 @@ describe("Expectations", function () {
             var e = (function () { throw new Error(); }).mustThrow(Error);
             e.mustBeInstanceOf(Error);
         });
+
+        it(".mustRespondTo", function () {
+            Test.mustRespondTo('factory');
+            Test.prototype.mustRespondTo('method');
+            assert.throws(AssertionError, function () { Test.mustRespondTo('method'); });
+        });
+
+        it(".wontRespondTo", function () {
+            Test.wontRespondTo('method');
+            Test.prototype.wontRespondTo('factory');
+            assert.throws(AssertionError, function () { Test.wontRespondTo('factory'); });
+        });
     });
 
     describe("expect()", function () {
@@ -215,6 +231,18 @@ describe("Expectations", function () {
             expect(function () { throw new Error(); }).toThrow();
             var e = expect(function () { throw new Error(); }).toThrow(Error);
             expect(e).toBeInstanceOf(Error);
+        });
+
+        it(".toRespondTo", function () {
+            expect(Test).toRespondTo('factory');
+            expect(Test.prototype).toRespondTo('method');
+            assert.throws(AssertionError, function () { expect(Test).toRespondTo('method'); });
+        });
+
+        it(".toNotRespondTo", function () {
+            expect(Test).toNotRespondTo('method');
+            expect(Test.prototype).toNotRespondTo('factory');
+            assert.throws(AssertionError, function () { expect(Test).toNotRespondTo('factory'); });
         });
     });
 });
