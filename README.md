@@ -14,19 +14,21 @@ modified to be compatible with javascript language bugs/features, and thus
 conforms to the [CommonJS Unit Testing/1.0](http://wiki.commonjs.org/wiki/Unit_Testing/1.0)
 test suite.
 
+Please see [http://ysbaddaden.github.io/minitest-js](http://ysbaddaden.github.io/minitest-js)
+for usage and API documentation.
+
 
 ## Browser support
 
-Minitest.js can be used from both Node.js and the browser. Any recent browser
-that correctly supports ECMAScript 5 (ES5) should be fully supported —ie.
-Internet Explorer 9+, Firefox 4+, Safari 5.1+, etc.
-Partial support can be enabled in olders browsers thanks to the
-[es5-shim](https://github.com/kriskowal/es5-shim) & es5-sham polyfills, but it
-won't enable the `actual.mustEqual(expected)` notation for example.
+Minitest.js assumes that your browser support ECMAScript 5, either natively or
+through a [polyfill](https://github.com/kriskowal/es5-shim) and can be used in
+any browser, back to Internet Explorer 6.
 
-Bottom line: **if you stick to assertions, expect and mocks, any browser
-should be compatible** (from Internet Explorer 6+). **To use matchers you need a
-modern engine** (from Internet Explorer 9+, Firefox 4+, etc).
+Spec expectations (eg: `mustEqual`), on the other end, do require native support
+for `Object.defineProperty`, which restrict support to modern engines only (eg:
+Node.js, Internet Explorer 10+, Firefox 12+, etc). But thanks to a little hack,
+we can support Firefox 3.6 and Internet Explorer 9 (unless we find another bug).
+
 
 ## Differences with CommonJS' Unit_Testing/1.0
 
@@ -51,18 +53,10 @@ the actual `assert.equal` and `refute.equal`.
 Last but no least, `assert` is itself an assertion, and `assert.ok` is just an
 alias for it. The same goes for `refute` and `refute.ok`.
 
-
+<!--
 ## Usage
 
 ### Node.js
-
-<!--
-First install minitest:
-
-    $ npm install minitest
-
-Then write your tests, using mocha for instance:
--->
 
 Using mocha for example:
 
@@ -121,7 +115,6 @@ then prepare your HTML test suite. For example, using mocha again:
 </body>
 </html>
 ```
-
 
 ## Assertions
 
@@ -406,7 +399,7 @@ stub(Date, 'now', 0, function () {
 refute.equal(0, Date.now());
 ```
 
-On modern browsers (IE 9+ and FF 4+), Object's prototype is infected with the
+On modern browsers (IE 10+ and FF 12+), Object's prototype is infected with the
 non enumerable `stub` method, so you can:
 
 ```javascript
@@ -421,6 +414,7 @@ earth.stub('meaning_of_life', 42, function () {
 Please see the [stub test
 suite](https://github.com/ysbaddaden/minitest-js/blob/master/test/stub_test.js)
 for more examples.
+-->
 
 
 ## License

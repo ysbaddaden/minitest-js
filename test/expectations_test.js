@@ -30,6 +30,7 @@ describe("Expectations", function () {
         });
 
         it("mustEqual", function () {
+            (1).mustEqual(1);
             "content".mustEqual("content");
             assert.throws(AssertionError, function () { (1).mustEqual(2); });
         });
