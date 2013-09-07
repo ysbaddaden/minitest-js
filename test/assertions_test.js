@@ -9,9 +9,6 @@ assert.failure = function (callback, message) {
 };
 
 describe("Assertions", function () {
-    var ary = [1, 2, 3];
-    var obj = {a: 1, b: 2, c: {1: 3}};
-
     function Test() {}
     Test.prototype.method = function () {};
     Test.factory = function () {};
@@ -294,7 +291,7 @@ describe("Assertions", function () {
             });
 
             it("must be an Array", function () {
-                assert.instanceOf(Array,  ary);
+                assert.instanceOf(Array, [1, 2, 3]);
                 var e = assert.failure(function () { assert.instanceOf(Array, {}); });
                 assert.equal("Expected {} to be an instance of Array.", e.message);
             });
