@@ -11,6 +11,7 @@ assert.failure = function (callback, message) {
 describe("Assertions", function () {
     function Test() {}
     Test.prototype.method = function () {};
+    Test.prototype.property = 1;
     Test.factory = function () {};
 
     describe("assert", function () {
@@ -322,6 +323,10 @@ describe("Assertions", function () {
                 e = assert.failure(function () { assert.respondTo(Test.prototype, 'factory'); });
                 assert.match("Expected .+ to respond to 'factory'.", e.message);
             });
+
+            it("must be a function", function () {
+                assert.failure(function () { assert.respondTo(Test.prototype, 'property'); });
+            });
         });
     });
 
@@ -475,6 +480,10 @@ describe("Assertions", function () {
 
                 e = assert.failure(function () { refute.respondTo(Test, 'factory'); });
                 assert.equal("Expected Test to not respond to 'factory'.", e.message);
+            });
+
+            it("must be a function", function () {
+                refute.respondTo(Test.prototype, 'property');
             });
         });
     });
