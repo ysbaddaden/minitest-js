@@ -1,8 +1,8 @@
 var minitest = require('../lib/minitest');
-var utils    = require('../lib/minitest/utils');
-var assert   = minitest.assert;
-var refute   = minitest.refute;
-var stub     = minitest.stub;
+var assert = minitest.assert;
+var refute = minitest.refute;
+
+var stub = require('../lib/minitest/stub');
 
 var StubTest = function () {};
 StubTest.foo = function () { return 'foo'; };

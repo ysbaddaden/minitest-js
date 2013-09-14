@@ -1,8 +1,8 @@
-var minitest             = require('../lib/minitest');
-var Mock                 = minitest.Mock;
-var MockExpectationError = minitest.Mock.MockExpectationError;
-var assert               = minitest.assert;
-var refute               = minitest.refute;
+var minitest = require('../lib/minitest');
+var assert = minitest.assert;
+var refute = minitest.refute;
+
+var Mock = require('../lib/minitest/mock');
 
 describe("Mock", function () {
     var mock = null;
@@ -43,7 +43,7 @@ describe("Mock", function () {
             mock.foo();
             mock.meaning_of_life();
             mock.expect('sum', 3, [1, 2]);
-            assert.throws(MockExpectationError, function () {
+            assert.throws(Mock.ExpectationError, function () {
                 mock.sum(2, 4);
             });
         });
@@ -72,7 +72,7 @@ describe("Mock", function () {
             mock = new Mock();
             mock.expect('foo', false, ['bar']);
             mock.expect('foo', true,  ['baz']);
-            assert.throws(MockExpectationError, function () {
+            assert.throws(Mock.ExpectationError, function () {
                 refute(mock.foo('baz'));
             });
         });
@@ -80,7 +80,7 @@ describe("Mock", function () {
         it("must run out of mocks for same method", function () {
             mock.expect('a');
             mock.a();
-            assert.throws(MockExpectationError, function () {
+            assert.throws(Mock.ExpectationError, function () {
                 mock.a();
             });
         });
@@ -88,7 +88,7 @@ describe("Mock", function () {
         it("must fail when callback returns false", function () {
             mock = new Mock();
             mock.expect('foo', null, function () { return false; });
-            assert.throws(MockExpectationError, function () {
+            assert.throws(Mock.ExpectationError, function () {
                 mock.foo();
             });
         });
@@ -110,7 +110,7 @@ describe("Mock", function () {
     describe("#verify", function () {
         it("must blow up if not called", function () {
             mock.foo();
-            assert.throws(MockExpectationError, function () {
+            assert.throws(Mock.ExpectationError, function () {
                 mock.verify();
             });
         });
@@ -125,7 +125,7 @@ describe("Mock", function () {
             mock.foo();
             mock.meaning_of_life();
             mock.expect('bar', true);
-            assert.throws(MockExpectationError, function () {
+            assert.throws(Mock.ExpectationError, function () {
                 mock.verify();
             });
         });
@@ -151,7 +151,7 @@ describe("Mock", function () {
             mock.expect('foo', null, ['bar']);
             mock.expect('foo', null, ['baz']);
             mock.foo('bar');
-            assert.throws(MockExpectationError, function () {
+            assert.throws(Mock.ExpectationError, function () {
                 mock.verify();
             });
         });
