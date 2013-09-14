@@ -1,14 +1,12 @@
 (function(){var global = this;function debug(){return debug};function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("minitest.js", function(module, exports, require, global){
-var Assertions = require('./minitest/assertions');
+var Assertions   = require('./minitest/assertions');
 var Expectations = require('./minitest/expectations');
-require('./minitest/spec');
 
 module.exports = {
     AssertionError: Assertions.AssertionError,
-              Mock: require('./minitest/mock'),
-              stub: require('./minitest/stub'),
             assert: Assertions.assert,
             refute: Assertions.refute,
+      Expectations: Expectations,
             expect: Expectations.expect
 };
 
@@ -182,6 +180,16 @@ refute.typeOf = function (expected, actual, msg) {
 };
 refute.type_of = refute.typeOf;
 
+assert.respondTo = function (object, method, msg) {
+    return assert(typeof object[method] === 'function',
+        utils.message(msg, "Expected %{obj} to respond to %{meth}", {obj: object, meth: method}));
+};
+
+refute.respondTo = function (object, method, msg) {
+    return refute(typeof object[method] === 'function',
+        utils.message(msg, "Expected %{obj} to not respond to %{meth}", {obj: object, meth: method}));
+};
+
 module.exports = {
     AssertionError: AssertionError,
     assert: assert,
@@ -234,9 +242,8 @@ infectAnAssertion(assert.includes, 'must', 'include', 'reverse');
 infectAnAssertion(assert.instanceOf, 'must', 'beInstanceOf');
 infectAnAssertion(assert.typeOf, 'must', 'beTypeOf');
 infectAnAssertion(assert.match, 'must', 'match');
-//infectAnAssertion(assert.null, 'must', 'beNull', 'reverse');
 //infectAnAssertion(assert.operator, 'mustBe', 'reverse');
-//infectAnAssertion(assert.respondTo, 'must', 'respondTo', 'reverse');
+infectAnAssertion(assert.respondTo, 'must', 'respondTo', 'reverse');
 infectAnAssertion(assert.same, 'must', 'beSameAs');
 infectAnAssertion(assert.throws, 'must', 'throw');
 
@@ -249,9 +256,8 @@ infectAnAssertion(refute.includes, 'wont', 'include', 'reverse');
 infectAnAssertion(refute.instanceOf, 'wont', 'beInstanceOf');
 infectAnAssertion(refute.typeOf, 'wont', 'beTypeOf');
 infectAnAssertion(refute.match, 'wont', 'match');
-//infectAnAssertion(refute.null, 'wont', 'beNull', 'reverse');
 //infectAnAssertion(refute.operator, 'wont', 'be', 'reverse');
-//infectAnAssertion(refute.respondTo, 'wont', 'respondTo', 'reverse');
+infectAnAssertion(refute.respondTo, 'wont', 'respondTo', 'reverse');
 infectAnAssertion(refute.same, 'wont', 'beSameAs');
 
 var infect = function (object, name) {
@@ -276,155 +282,6 @@ module.exports = {
     },
     infectAnAssertion: infectAnAssertion
 };
-
-});require.register("minitest/mock.js", function(module, exports, require, global){
-var utils = require('./utils');
-var nil = null;
-
-function MockExpectationError(message) {
-    Error.call(this, message);
-    this.message = message;
-    if (Error.captureStackTrace) Error.captureStackTrace.call(this, arguments.callee);
-}
-MockExpectationError.prototype = Object.create(Error.prototype);
-MockExpectationError.prototype.constructor = MockExpectationError;
-
-var argsEqual = function (expected, actual) {
-    return expected.every(function (value, i) {
-        if (typeof value == 'function') {
-            switch (value) {
-            case String: return typeof actual[i] === 'string';
-            case Number: return typeof actual[i] === 'number';
-            default:     return actual[i] instanceof value;
-            }
-        }
-        return utils.deepEqual(value, actual[i]);
-    });
-};
-
-var validateArguments = function (name, expected, actual) {
-    if (expected.length !== actual.length) {
-        throw new TypeError("mocked method " + name + "() expects " +
-            expected.length + "arguments, got " + actual.length + "."
-        );
-    }
-    if (!argsEqual(expected, actual)) {
-        throw new MockExpectationError("mocked method " + name +
-            "() called with unexpected arguments " +
-            utils.inspect(Array.prototype.slice.call(actual))
-        );
-    }
-};
-
-var validateCallback = function (name, callback, args) {
-    if (!callback.apply(null, args)) {
-        throw new MockExpectationError("mocked method " + name + "() failed block w/ " + utils.inspect(args));
-    }
-};
-
-var mockMethod = function (self, name) {
-    return function () {
-        var index = self.actualCalls[name].length;
-        var expected = self.expectedCalls[name][index];
-
-        if (!expected) {
-            throw new MockExpectationError("No more expects available for " + name + "()");
-        }
-        if (expected.args) {
-            validateArguments(name, expected.args, arguments);
-        }
-        if (expected.callback) {
-            validateCallback(name, expected.callback, arguments);
-        }
-
-        self.actualCalls[name].push(expected);
-        return expected.retval;
-    };
-};
-
-var Mock = function () {
-    this.expectedCalls = {};
-    this.actualCalls = {};
-};
-
-Mock.prototype.expect = function (name, retval, args, callback) {
-    if (args != nil) {
-        if (typeof args === 'function') {
-            callback = args;
-            args = null;
-        } else if (!Array.isArray(args)) {
-            throw new TypeError("args must be an array");
-        }
-    }
-    if (args && callback) {
-        throw new TypeError("args ignored when callback given");
-    }
-
-    if (!this.expectedCalls[name]) {
-        this.expectedCalls[name] = [];
-        this.actualCalls[name] = [];
-    }
-    this.expectedCalls[name].push({
-        name: name,
-        retval: retval,
-        args: args,
-        callback: callback
-    });
-
-    if (!this[name]) {
-        this[name] = mockMethod(this, name);
-    }
-    return this;
-};
-
-Mock.prototype.verify = function () {
-    for (var name in this.expectedCalls) {
-        if (!this.expectedCalls.hasOwnProperty(name)) {
-            continue;
-        }
-        if (this.actualCalls[name].length !== this.expectedCalls[name].length) {
-            throw new MockExpectationError("Expected " + name + "()");
-        }
-    }
-    return true;
-};
-
-Mock.MockExpectationError = MockExpectationError;
-module.exports = Mock;
-
-
-});require.register("minitest/spec.js", function(module, exports, require, global){
-var Expectations = require('./expectations');
-
-if (typeof MT_NO_EXPECTATIONS === 'undefined' || !MT_NO_EXPECTATIONS) {
-    Expectations.infect(Object.prototype);
-}
-
-});require.register("minitest/stub.js", function(module, exports, require, global){
-var utils = require('./utils');
-
-var stub = function (object, name, val_or_callable, callback) {
-    var saved = object[name];
-    object[name] = function () {
-        if (typeof val_or_callable === 'function') {
-            return val_or_callable.apply(null, arguments);
-        } else {
-            return val_or_callable;
-        }
-    };
-    try {
-        callback(object);
-    } finally {
-        object[name] = saved;
-    }
-    return object;
-};
-
-utils.infectMethod('stub', function (name, val_or_callable, callback) {
-    return stub(this, name, val_or_callable, callback);
-});
-
-module.exports = stub;
 
 });require.register("minitest/utils.js", function(module, exports, require, global){
 var nil = null;
@@ -465,7 +322,7 @@ var deepEqual = function (actual, expected) {
     if (expected instanceof Date) {
         return (actual instanceof Date && expected.getTime() === actual.getTime());
     }
-    if (typeof expected !== 'object' || typeof actual !== 'object') {
+    if (expected === null || actual === null || typeof expected !== 'object' || typeof actual !== 'object') {
         return actual == expected;
     }
     if (expected.prototype !== actual.prototype) {
@@ -499,6 +356,12 @@ var message = function (msg, default_msg, interpolations, ending) {
     };
 };
 
+var getFunctionName = function (fn) {
+    var name = fn.name || String(fn);
+    var m = name.match(/function (.+?)\(.*?\) {/);
+    return m ? m[1] : name;
+};
+
 // inspect is extracted from Prototype © Prototype Core Team
 // https://github.com/sstephenson/prototype
 var inspect = function (object) {
@@ -510,7 +373,7 @@ var inspect = function (object) {
         case 'array':
         case 'arguments': return inspectArray(object);
         case 'object':    return inspectObject(object);
-        case 'function':  return object.name || String(object);
+        case 'function':  return getFunctionName(object);
         default:          return String(object);
         }
     } catch (e) {
@@ -573,18 +436,25 @@ var times = function (str, count) {
 //
 // 1) legacy browsers don't support defineProperty;
 // 2) IE8 doesn't support defineProperty on non DOM objects;
-// 3) IE9 has a bug where +this+ in a getter on Number is always +0+.
+// 3) IE9 has a bug where +this+ in a getter on Number is always 0;
+// 4) FF4 has the same bug when the getter returns a function (also affects String).
 
 var supportsDefineProperty = false;
 var supportsDefinePropertyOnNumber = false;
+var supportsDefinePropertyOnString = false;
 
 if (Object.defineProperty) {
     try {
         Object.defineProperty(Object.prototype, '__mt_test_define_property', {
-            get: function () { return this; }, configurable: true
+            get: function () {
+                var self = this;
+                return function () { return self; };
+            },
+            configurable: true
         });
         supportsDefineProperty = true,
-        supportsDefinePropertyOnNumber = (101).__mt_test_define_property == 101;
+        supportsDefinePropertyOnNumber = (101).__mt_test_define_property() == 101;
+        supportsDefinePropertyOnString = "str".__mt_test_define_property() == "str";
         delete Object.prototype.__mt_test_define_property;
     } catch (error) {}
 }
@@ -601,15 +471,17 @@ if (Object.defineProperty) {
 // for hasOwnProperty within for in loops, but it works.
 //
 var infectMethod = function (property, fn) {
-    // infects Object.prototype with a non enumerable property:
     if (supportsDefineProperty) {
+        // Fixes IE9 & FF4 support by extending Number & String prototypes
+        // directly with methods. That should be safe enough.
         if (!supportsDefinePropertyOnNumber) {
-            // fixes IE9's where +this+ in a getter on Number is always +0+ by
-            // setting a method on Number.prototype directly, which should be
-            // safe enough:
             Number.prototype[property] = fn;
         }
+        if (!supportsDefinePropertyOnString) {
+            String.prototype[property] = fn;
+        }
 
+        // Infects Object.prototype with a non enumerable property:
         return Object.defineProperty(Object.prototype, property, {
             set: function () {},
             get: function () {
