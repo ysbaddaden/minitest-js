@@ -71,9 +71,10 @@ require('minitest/spec');
 
 ### Browser
 
-There is nothing else needed than loading the built minitest.js file. Specs have
-already been defined and are ready to use.
-
+```html
+<script src="minitest.js"></script>
+<script src="minitest-spec.js"></script>
+```
 
 ## API
 

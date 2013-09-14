@@ -51,7 +51,12 @@ then prepare your HTML test suite. For example, using mocha:
 
   <script src="test/support/es5-shim.min.js"></script>
   <script src="test/support/es5-sham.min.js"></script>
+
   <script src="test/support/minitest.js"></script>
+  <!--script src="test/support/minitest-spec.js"></script-->
+  <!--script src="test/support/minitest-mock.js"></script-->
+  <!--script src="test/support/minitest-stub.js"></script-->
+
   <script src="test/support/mocha.js"></script>
 
   <script>

@@ -68,7 +68,7 @@ expect(meme.will_it_blend()).toNotMatch(/^no/i);
     <div class="content" data-section-content>
 {% highlight javascript %}
 require("minitest/spec");
-var Mock = require("minitest").Mock;
+var Mock = require("minitest/mock");
 
 var MemeAsker = function (meme) {
   this.meme = meme;

@@ -22,6 +22,8 @@ var stub = require('minitest/stub');
 You can create global shortcuts:
 
 ```html
+<script src="minitest-mock.js"></script>
+<script src="minitest-stub.js"></script>
 <script>
 var Mock = minitest.Mock;
 var stub = minitest.stub;
