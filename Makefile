@@ -1,15 +1,22 @@
 .PHONY: test
 .IGNORE: test
 
-#BIN = ./node_modules/.bin
-OBJECTS = $(wildcard lib/*.js) $(wildcard lib/**/*.js)
+BIN = `npm bin`
+
+MAIN = lib/minitest.js \
+	   lib/minitest/utils.js \
+	   lib/minitest/assertions.js \
+	   lib/minitest/expectations.js
+SPEC = lib/minitest/spec.js
+MOCK = lib/minitest/mock.js
+STUB = lib/minitest/stub.js
 
 all:
-	browserbuild -g minitest -b lib/ -m minitest $(OBJECTS) > minitest.js
+	$(BIN)/browserbuild -g minitest -b lib/ -m minitest $(MAIN) > minitest.js
+	$(BIN)/browserbuild -b lib/ -m minitest/spec $(SPEC) > minitest-spec.js
+	$(BIN)/browserbuild -g minitest.Mock -b lib/ -m minitest/mock $(MOCK) > minitest-mock.js
+	$(BIN)/browserbuild -g minitest.stub -b lib/ -m minitest/stub $(STUB) > minitest-stub.js
 
 test:
-	mocha
-
-report:
-	plato -r -d report/ lib/
+	$(BIN)/mocha
 
