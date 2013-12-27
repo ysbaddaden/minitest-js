@@ -173,4 +173,34 @@ describe("Mock", function () {
             assert(mock.verify());
         });
     });
+
+    describe("mock method", function () {
+        var obj = {};
+
+        it("must create a mock", function () {
+            var fn = obj.mock('foo');
+            assert.same(fn, obj.foo);
+            assert.typeOf('function', fn);
+            assert.typeOf('function', fn.verify);
+        });
+
+        it("must call mock method", function () {
+            var fn = obj.mock('foo');
+            obj.foo();
+            assert(fn.verify());
+        });
+
+        it("must call mock method and return value", function () {
+            var fn = obj.mock('foo', 123);
+            assert.equal(123, obj.foo());
+            assert(fn.verify());
+        });
+
+        it("must validate arguments", function () {
+            var fn = obj.mock('foo', 3, [1, 2]);
+            assert.equal(3, obj.foo(1, 2));
+            assert(fn.verify());
+        });
+    });
 });
+
