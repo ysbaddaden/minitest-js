@@ -7,7 +7,8 @@ module.exports = {
             assert: Assertions.assert,
             refute: Assertions.refute,
       Expectations: Expectations,
-            expect: Expectations.expect
+            expect: Expectations.expect,
+             utils: require('./minitest/utils')
 };
 
 });require.register("minitest/assertions.js", function(module, exports, require, global){
@@ -277,7 +278,7 @@ module.exports = {
             return;
         }
         for (var name in Expectations) {
-            if (Expectations.hasOwnProperty(name)) {
+            if (Expectations.hasOwnProperty(name) && !object.hasOwnProperty(name)) {
                 infect(object, name);
             }
         }

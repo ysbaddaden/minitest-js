@@ -30,7 +30,7 @@
         mocha.globals(['minitest']);
 
         require(TESTS, function () {
-          mocha.run();
+          (window.mochaPhantomJS || mocha).run();
         });
       };
     </script>
