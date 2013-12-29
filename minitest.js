@@ -245,6 +245,7 @@ infectAnAssertion(assert.match, 'must', 'match');
 //infectAnAssertion(assert.operator, 'mustBe', 'reverse');
 infectAnAssertion(assert.respondTo, 'must', 'respondTo', 'reverse');
 infectAnAssertion(assert.same, 'must', 'beSameAs');
+infectAnAssertion(assert.same, 'must', 'be');
 infectAnAssertion(assert.throws, 'must', 'throw');
 
 infectAnAssertion(refute.empty, 'wont', 'beEmpty', 'unary');
@@ -259,6 +260,7 @@ infectAnAssertion(refute.match, 'wont', 'match');
 //infectAnAssertion(refute.operator, 'wont', 'be', 'reverse');
 infectAnAssertion(refute.respondTo, 'wont', 'respondTo', 'reverse');
 infectAnAssertion(refute.same, 'wont', 'beSameAs');
+infectAnAssertion(refute.same, 'wont', 'be');
 
 var infect = function (object, name) {
     utils.infectMethod(name, function () {
@@ -338,6 +340,19 @@ var deepEqual = function (actual, expected) {
         }
     }
     return true;
+};
+
+var argsEqual = function (expected, actual) {
+    return expected.every(function (value, i) {
+        if (typeof value == 'function') {
+            switch (value) {
+            case String: return typeof actual[i] === 'string';
+            case Number: return typeof actual[i] === 'number';
+            default:     return actual[i] instanceof value;
+            }
+        }
+        return deepEqual(value, actual[i]);
+    });
 };
 
 var interpolate = function (str, interpolations) {
@@ -501,6 +516,7 @@ var infectMethod = function (property, fn) {
 
 module.exports = {
     deepEqual: deepEqual,
+    argsEqual: argsEqual,
     empty: empty,
     type: type,
 
