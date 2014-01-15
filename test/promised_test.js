@@ -75,6 +75,8 @@ describe("Promised", function () {
     });
 
     describe("spec", function () {
+        if (!Object.prototype.mustEqual) return;
+
         it("must test normally", function () {
             expect(true).mustEqual(true);
         });

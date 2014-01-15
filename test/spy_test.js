@@ -56,6 +56,7 @@ describe("Spy", function () {
     });
 
     describe("Object#spy property", function () {
+        if (!Object.prototype.spy) return;
         var fn, obj;
 
         beforeEach(function () {
@@ -116,6 +117,8 @@ describe("Spy", function () {
         });
 
         describe("spec", function () {
+            if (!Object.prototype.mustHaveBeenCalled) return;
+
             it("mustHaveBeenCalled", function () {
                 assert_failure(function () { fn.mustHaveBeenCalled(); });
                 fn();

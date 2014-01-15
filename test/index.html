@@ -19,10 +19,10 @@
       var TESTS = [
         'utils_test',
         'assertions_test',
+        'expectations_test',
         'mock_test',
         'stub_test',
         'spy_test',
-        'expectations_test',
         'promised_test'
       ];
 
@@ -31,10 +31,13 @@
         mocha.checkLeaks();
         mocha.globals(['minitest']);
 
-        require(TESTS, function () {
-          (window.mochaPhantomJS || mocha).run();
+        require(['../lib/minitest', '../lib/minitest/promised'], function () {
+          require(TESTS, function () {
+            (window.mochaPhantomJS || mocha).run();
+          });
         });
       };
+
     </script>
   </head>
   <body>

@@ -54,7 +54,7 @@ promiseAnAssertion('typeOf');
 promiseAnAssertion('respondTo', 'reverse');
 
 minitest.resolver = function (actual, callback, args, argn) {
-    if (enabled && typeof actual.then === 'function') {
+    if (enabled && actual && typeof actual.then === 'function') {
         return actual.then(function (value) {
             args[argn] = value;
             return callback.apply(null, args);

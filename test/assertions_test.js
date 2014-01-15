@@ -288,7 +288,7 @@ describe("Assertions", function () {
 
             it("must be an anonymous function", function () {
                 var e = assert.failure(function () { assert.instanceOf(function () {}, Object); });
-                assert.match(/Expected Object to be an instance of [^]+\./g, e.message);
+                assert.match(/Expected Object to be an instance of .+\./g, e.message);
             });
 
             it("must be an Array", function () {
@@ -321,7 +321,7 @@ describe("Assertions", function () {
                 assert.equal("Expected Test to respond to 'method'.", e.message);
 
                 e = assert.failure(function () { assert.respondTo(Test.prototype, 'factory'); });
-                assert.match(/Expected [^]+ to respond to 'factory'\./, e.message);
+                assert.match(/Expected .+ to respond to 'factory'\./, e.message);
             });
 
             it("must be a function", function () {
@@ -476,7 +476,7 @@ describe("Assertions", function () {
                 assert.match(/Expected 'str' to not respond to 'toUpperCase'\./, e.message);
 
                 e = assert.failure(function () { refute.respondTo(Test.prototype, 'method'); });
-                assert.match(/Expected [^]+ to not respond to 'method'\./, e.message);
+                assert.match(/Expected .+ to not respond to 'method'\./, e.message);
 
                 e = assert.failure(function () { refute.respondTo(Test, 'factory'); });
                 assert.equal("Expected Test to not respond to 'factory'.", e.message);
