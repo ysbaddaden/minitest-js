@@ -93,23 +93,23 @@ expect(1).toNotEqual(2);
 expect({colors: ['red', 'green']}).toNotEqual({colors: ['blue', 'green']});
 ```
 
-### .toBeSameAs(expected, [message])<br/><small>Also aliased as: mustBeSameAs</small>
+### .toBe(expected, [message])<br/><small>Also aliased as: toBeSameAs, mustBe, mustBeSameAs</small>
 
 Succeeds if actual `===` expected.
 
 ```javascript
 var obj = {a: 1};
-expect(obj).toBeSameAs(obj);
-expect(1).toBeSameAs(1);
+expect(obj).toBe(obj);
+expect(1).toBe(1);
 ```
 
-### .toNotBeSameAs(expected, [message])<br/><small>Also aliased as: wontBeSameAs</small>
+### .toNotBe(expected, [message])<br/><small>Also aliased as: toNotBeSameAs, wontBe, wontBeSameAs</small>
 
 Succeeds unless actual `===` expected.
 
 ```javascript
-expect({a: 1}).toNotBeSameAs({a: 1});
-expect(1).toNotBeSameAs(2);
+expect({a: 1}).toNotBe({a: 1});
+expect(1).toNotBe(2);
 ```
 
 ### .toBeWithinDelta(expected, delta = 0.001, [message])<br/><small>Also aliased as: mustBeWithinDelta, toBeCloseTo and mustBeCloseTo</small>

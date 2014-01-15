@@ -6,7 +6,11 @@ layout: application
 # Mock
 
 You can create a Mock object, expect methods to be called, and verify that they
-were called, just like you do in Ruby.
+were called. You can also stub a method to always return a specified value.
+Just like you do in Ruby.
+
+Minitest.js also comes with the ability to spy on given methods and verify if
+they were called or called with a set of arguments.
 
 ## Usage
 
@@ -15,6 +19,7 @@ were called, just like you do in Ruby.
 ```javascript
 var Mock = require('minitest/mock');
 var stub = require('minitest/stub');
+var spy  = require('minitest/spy');
 ```
 
 ### Browser
@@ -24,9 +29,11 @@ You can create global shortcuts:
 ```html
 <script src="minitest-mock.js"></script>
 <script src="minitest-stub.js"></script>
+<script src="minitest-spy.js"></script>
 <script>
 var Mock = minitest.Mock;
 var stub = minitest.stub;
+var spy  = minitest.spy;
 </script>
 ```
 
@@ -161,5 +168,62 @@ obj.stub('test', false, function () {
 });
 
 obj.test();  // => true
+```
+
+
+## Spy
+
+A spy is a noop function that does and returns nothing, but which you can verify
+that it was called. Thus is different from a stub, because a stub doesn't have
+to be verified.
+
+### spy(methodName)
+
+Creates a spy method. The name will only be used in assertions, and the spy will
+do nothing.
+
+#### assert.called(spy, msg)
+
+Verifies that the spy was actually called.
+
+```javascript
+var test = spy('test');
+refute.called(test);
+
+test();
+assert.called(test);
+```
+
+This assertion is also available for specs (`mustHaveBeenCalled`) and expect
+(`toHaveBeenCalled`).
+
+#### assert.calledWith(spy, args, msg)
+
+Verifies that the spy was called with the given set of arguments.
+
+```javascript
+var test = spy('test');
+test(1, 2, 3);
+assert.calledWith(test, [1, 2, 3]);
+refute.calledWith(test, [4, 5, 6]);
+```
+
+This assertion is also available for specs (`mustHaveBeenCalledWith`) and expect
+(`toHaveBeenCalledWith`).
+
+
+### object.spy(methodName)
+
+Spies on an object method. Convenience access for the above `spy` method.
+
+```javascript
+var obj = {
+    test: function () {}
+};
+obj.spy('test');
+
+obj.test(1, 2, 3);
+assert.called(obj.test);
+assert.calledWith(obj.test, [1, 2, 3]);
 ```
 

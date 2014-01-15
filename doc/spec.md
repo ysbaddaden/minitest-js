@@ -146,6 +146,8 @@ obj.mustBeSameAs(obj);
 (1).mustBeSameAs(1);
 ```
 
+This method is also aliased as `.mustBe()`.
+
 ### actual.wontBeSameAs(expected, [message])
 
 Succeeds unless actual `===` expected.
@@ -154,6 +156,8 @@ Succeeds unless actual `===` expected.
 ({a: 1}).wontBeSameAs({a: 1});
 (1).wontBeSameAs(2);
 ```
+
+This method is also aliased as `.wontBe()`.
 
 ### actual.mustBeWithinDelta(expected, delta = 0.001, [message])
 

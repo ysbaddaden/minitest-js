@@ -107,4 +107,22 @@ assert.equal("YES!", meme.will_it_blend());
 {% endhighlight %}
     </div>
   </section>
+
+  <section>
+    <p class="title" data-section-title>
+      <a href="#promises">Promises</a>
+    </p>
+    <div class="content" data-section-content>
+{% highlight javascript %}
+var assert = require("minitest").promised.assert;
+
+var deferred = Q.defer();
+assert.equal("YES!", deferred.promise);
+deferred.resolve("YES!");
+
+// we can still use normal assertions
+assert(true);
+{% endhighlight %}
+    </div>
+  </section>
 </div>
