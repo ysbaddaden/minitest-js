@@ -2,7 +2,7 @@ var minitest = require('../lib/minitest');
 var assert = minitest.assert;
 var refute = minitest.refute;
 
-var Mock = require('../lib/minitest/mock');
+var Mock = require('../lib/mock');
 
 describe("Mock", function () {
     var mock = null;

@@ -24,3 +24,6 @@ all:
 test:
 	$(BIN)/mocha
 
+npm:
+	mv ./lib/*.js .
+

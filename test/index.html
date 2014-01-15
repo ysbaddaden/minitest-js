@@ -31,7 +31,7 @@
         mocha.checkLeaks();
         mocha.globals(['minitest']);
 
-        require(['../lib/minitest', '../lib/minitest/promised'], function () {
+        require(['../lib/minitest', '../lib/promised'], function () {
           require(TESTS, function () {
             (window.mochaPhantomJS || mocha).run();
           });

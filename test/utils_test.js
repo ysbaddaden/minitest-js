@@ -1,6 +1,6 @@
 describe("utils", function () {
     var assert = require('../lib/minitest').assert;
-    var utils  = require('../lib/minitest/utils');
+    var utils  = require('../lib/utils');
 
     describe(".type", function () {
         it("must detect null", function () {

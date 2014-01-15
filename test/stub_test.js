@@ -2,7 +2,7 @@ var minitest = require('../lib/minitest');
 var assert = minitest.assert;
 var refute = minitest.refute;
 
-var stub = require('../lib/minitest/stub');
+var stub = require('../lib/stub');
 
 var StubTest = function () {};
 StubTest.foo = function () { return 'foo'; };

@@ -1,5 +1,5 @@
 var minitest       = require('../lib/minitest');
-var utils          = require('../lib/minitest/utils');
+var utils          = require('../lib/utils');
 var AssertionError = minitest.AssertionError;
 var assert         = minitest.assert;
 
@@ -9,7 +9,7 @@ describe("Expectations", function () {
     Test.factory = function () {};
 
     describe("matchers", function () {
-        require('../lib/minitest/spec');
+        require('../lib/spec');
 
         // skips legacy browsers that don't support properties
         if (!Object.prototype.mustEqual) return;

@@ -1,5 +1,5 @@
-require('../lib/minitest/promised');
-require('../lib/minitest/spec');
+require('../lib/promised');
+require('../lib/spec');
 
 var AssertionError = require('../lib/minitest').AssertionError;
 var assert = require('../lib/minitest').assert;

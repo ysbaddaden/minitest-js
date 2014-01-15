@@ -3,8 +3,8 @@ var assert = minitest.assert;
 var refute = minitest.refute;
 var expect = minitest.expect;
 
-var spy = require('../lib/minitest/spy');
-var Mock = require('../lib/minitest/mock');
+var spy = require('../lib/spy');
+var Mock = require('../lib/mock');
 
 var assert_failure = function (callback, message) {
     return assert.throws(minitest.AssertionError, callback, message);
