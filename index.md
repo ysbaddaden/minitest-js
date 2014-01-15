@@ -25,6 +25,11 @@ modified to cope with javascript's weirdness, and thus somehow conform to the
 [CommonJS Unit Testing/1.0](http://wiki.commonjs.org/wiki/Unit_Testing/1.0)
 test suite (eg: deep equality).
 
+## Install
+
+```sh
+npm install git://github.com/ysbaddaden/minitest-js.git
+```
 
 ## Browser Support
 
