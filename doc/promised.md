@@ -28,7 +28,7 @@ var refute = require('minitest').refute;
 ### Browser
 
 Just load `minitest-promised.js` immediately after `minitest.js` and before
-loading any other extension like [Spec](spec.html) and [Spy](spy.html). Then you
+loading any other extension like [Spec](spec.html) and [Spy](mock.html). Then you
 may create shortcuts as usual. For example:
 
 ```html
