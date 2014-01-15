@@ -1,14 +1,14 @@
 (function(){var global = this;function debug(){return debug};function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("minitest.js", function(module, exports, require, global){
-var Assertions   = require('./minitest/assertions');
+var Assertions = require('./minitest/assertions');
 var Expectations = require('./minitest/expectations');
 
 module.exports = {
     AssertionError: Assertions.AssertionError,
-            assert: Assertions.assert,
-            refute: Assertions.refute,
-      Expectations: Expectations,
-            expect: Expectations.expect,
-             utils: require('./minitest/utils')
+    assert: Assertions.assert,
+    refute: Assertions.refute,
+    expect: Expectations.expect,
+    Expectations: Expectations,
+    utils: require('./minitest/utils')
 };
 
 });require.register("minitest/assertions.js", function(module, exports, require, global){
@@ -52,18 +52,18 @@ assert.block = function (callback, msg) {
 
 assert.same = function (expected, actual, msg) {
     return assert(actual === expected,
-        utils.message(msg, "Expected %{act} to be === %{exp}", {act: actual, exp: expected}, ""));
+        utils.message(msg, "Expected %{act} to be === %{exp}", { act: actual, exp: expected }, ""));
 };
 
 refute.same = function (expected, actual, msg) {
     return refute(actual === expected,
-        utils.message(msg, "Expected %{act} to be !== %{exp}", {act: actual, exp: expected}, ""));
+        utils.message(msg, "Expected %{act} to be !== %{exp}", { act: actual, exp: expected }, ""));
 };
 
 assert.equal = function (expected, actual, msg) {
     if (!utils.deepEqual(actual, expected)) {
         throw new AssertionError(
-            utils.message(msg, "Expected %{act} to be equal to %{exp}", {act: actual, exp: expected}, ""),
+            utils.message(msg, "Expected %{act} to be equal to %{exp}", { act: actual, exp: expected }, ""),
             expected, actual);
     }
     return true;
@@ -72,7 +72,7 @@ assert.equal = function (expected, actual, msg) {
 refute.equal = function (expected, actual, msg) {
     if (utils.deepEqual(actual, expected)) {
         throw new AssertionError(
-            utils.message(msg, "Expected %{act} to not be equal to %{exp}", {act: actual, exp: expected}, ""),
+            utils.message(msg, "Expected %{act} to not be equal to %{exp}", { act: actual, exp: expected }, ""),
             expected, actual);
     }
     return true;
@@ -82,7 +82,7 @@ assert.inDelta = function (expected, actual, delta, msg) {
     if (delta == nil) delta = 0.001;
     var n = Math.abs(expected - actual);
     return assert(delta >= n,
-        utils.message(msg, "Expected %{exp} - %{act} (%{n}) to be <= %{delta}", {exp: expected, act: actual, n: n, delta: delta}));
+        utils.message(msg, "Expected %{exp} - %{act} (%{n}) to be <= %{delta}", { exp: expected, act: actual, n: n, delta: delta }));
 };
 assert.in_delta = assert.inDelta;
 
@@ -90,7 +90,7 @@ refute.inDelta = function (expected, actual, delta, msg) {
     if (delta == nil) delta = 0.001;
     var n = Math.abs(expected - actual);
     return refute(delta >= n,
-        utils.message(msg, "Expected %{exp} - %{act} (%{n}) to not be <= %{delta}", {exp: expected, act: actual, n: n, delta: delta}));
+        utils.message(msg, "Expected %{exp} - %{act} (%{n}) to not be <= %{delta}", { exp: expected, act: actual, n: n, delta: delta }));
 };
 refute.in_delta = refute.inDelta;
 
@@ -106,21 +106,21 @@ refute.inEpsilon = function (a, b, epsilon, msg) {
 refute.in_epsilon = refute.inEpsilon;
 
 assert.empty = function (test, msg) {
-    return assert(utils.empty(test), utils.message(msg, "Expected %{act} to be empty", {act: test}));
+    return assert(utils.empty(test), utils.message(msg, "Expected %{act} to be empty", { act: test }));
 };
 
 refute.empty = function (test, msg) {
-    return refute(utils.empty(test), utils.message(msg, "Expected %{act} to not be empty", {act: test}));
+    return refute(utils.empty(test), utils.message(msg, "Expected %{act} to not be empty", { act: test }));
 };
 
 assert.includes = function (collection, obj, msg) {
     return refute(collection.indexOf(obj) === -1,
-        utils.message(msg, "Expected %{collection} to include %{obj}", {collection: collection, obj: obj}));
+        utils.message(msg, "Expected %{collection} to include %{obj}", { collection: collection, obj: obj }));
 };
 
 refute.includes = function (collection, obj, msg) {
     return assert(collection.indexOf(obj) === -1,
-        utils.message(msg, "Expected %{collection} to not include %{obj}", {collection: collection, obj: obj}));
+        utils.message(msg, "Expected %{collection} to not include %{obj}", { collection: collection, obj: obj }));
 };
 
 assert.throws = function (error, callback, msg) {
@@ -140,7 +140,7 @@ assert.throws = function (error, callback, msg) {
     }
 
     throw new AssertionError(error ?
-        utils.message(msg, "%{error} expected but nothing was thrown", {error: error}) :
+        utils.message(msg, "%{error} expected but nothing was thrown", { error: error }) :
         utils.message(msg, "Exception expected but nothing was thrown")
     );
 };
@@ -148,47 +148,47 @@ assert.throws = function (error, callback, msg) {
 assert.match = function (pattern, actual, msg) {
     if (typeof pattern === 'string') pattern = new RegExp(pattern);
     return assert(pattern.test(actual),
-        utils.message(msg, "Expected %{pattern} to match %{act}", {pattern: pattern, act: actual}));
+        utils.message(msg, "Expected %{pattern} to match %{act}", { pattern: pattern, act: actual }));
 };
 
 refute.match = function (pattern, actual, msg) {
     if (typeof pattern === 'string') pattern = new RegExp(pattern);
     return refute(pattern.test(actual),
-        utils.message(msg, "Expected %{pattern} to not match %{act}", {pattern: pattern, act: actual}));
+        utils.message(msg, "Expected %{pattern} to not match %{act}", { pattern: pattern, act: actual }));
 };
 
 assert.instanceOf = function (expected, actual, msg) {
     return assert(actual instanceof expected,
-        utils.message(msg, "Expected %{act} to be an instance of %{exp}", {act: actual, exp: expected}));
+        utils.message(msg, "Expected %{act} to be an instance of %{exp}", { act: actual, exp: expected }));
 };
 assert.instance_of = assert.instanceOf;
 
 refute.instanceOf = function (expected, actual, msg) {
     return refute(actual instanceof expected,
-        utils.message(msg, "Expected %{act} to not be an instance of %{exp}", {act: actual, exp: expected}));
+        utils.message(msg, "Expected %{act} to not be an instance of %{exp}", { act: actual, exp: expected }));
 };
 refute.instance_of = refute.instanceOf;
 
 assert.typeOf = function (expected, actual, msg) {
     return assert(utils.type(actual) === expected,
-        utils.message(msg, "Expected %{act} to be of type %{exp} not %{type}", {act: actual, exp: expected, type: utils.type(actual)}));
+        utils.message(msg, "Expected %{act} to be of type %{exp} not %{type}", { act: actual, exp: expected, type: utils.type(actual) }));
 };
 assert.type_of = assert.typeOf;
 
 refute.typeOf = function (expected, actual, msg) {
     return refute(utils.type(actual) === expected,
-        utils.message(msg, "Expected %{act} to not be of type %{exp}", {act: actual, exp: expected}));
+        utils.message(msg, "Expected %{act} to not be of type %{exp}", { act: actual, exp: expected }));
 };
 refute.type_of = refute.typeOf;
 
 assert.respondTo = function (object, method, msg) {
     return assert(typeof object[method] === 'function',
-        utils.message(msg, "Expected %{obj} to respond to %{meth}", {obj: object, meth: method}));
+        utils.message(msg, "Expected %{obj} to respond to %{meth}", { obj: object, meth: method }));
 };
 
 refute.respondTo = function (object, method, msg) {
     return refute(typeof object[method] === 'function',
-        utils.message(msg, "Expected %{obj} to not respond to %{meth}", {obj: object, meth: method}));
+        utils.message(msg, "Expected %{obj} to not respond to %{meth}", { obj: object, meth: method }));
 };
 
 module.exports = {
@@ -199,8 +199,7 @@ module.exports = {
 
 });require.register("minitest/expectations.js", function(module, exports, require, global){
 var AssertionError = require('./assertions').AssertionError;
-var assert = require('./assertions').assert;
-var refute = require('./assertions').refute;
+var assertions = require('./assertions');
 var utils = require('./utils');
 
 var Expectations = {};
@@ -209,59 +208,63 @@ var Matcher = function (actual) {
     this.actual = actual;
 };
 
-var infectAnAssertion = function (assertion, type, name, dontFlip) {
-    var fn, nil = null;
+var infectAnAssertion = function (type, assertName, name, dontFlip) {
+    var fn;
 
     if (!!dontFlip) {
         fn = function () {
+            var assertion = assertions[type][assertName];
             var args = Array.prototype.slice.call(arguments);
             return assertion.apply(null, [this].concat(args));
         };
     } else {
         fn = function () {
+            var assertion = assertions[type][assertName];
             var args = Array.prototype.slice.call(arguments, 1);
             return assertion.apply(null, [arguments[0], this].concat(args));
         };
     }
 
     var camelName = name.charAt(0).toUpperCase() + name.slice(1);
-    Expectations[type + camelName] = fn;
+    var matcherName = (type === 'assert' ? 'must' : 'wont') + camelName;
+    Expectations[matcherName] = fn;
 
-    var prefix = type === 'must' ? 'to' : 'toNot';
-    Matcher.prototype[prefix + camelName] = function () {
+    var prefix = type === 'assert' ? 'to' : 'toNot';
+    Matcher.prototype[matcherName] = function () {
         return fn.apply(this.actual, arguments);
     };
-    Matcher.prototype[type + camelName] = Matcher.prototype[prefix + camelName];
+
+    Matcher.prototype[prefix + camelName] = Matcher.prototype[matcherName];
 };
 
-infectAnAssertion(assert.empty, 'must', 'beEmpty', 'unary');
-infectAnAssertion(assert.equal, 'must', 'equal');
-infectAnAssertion(assert.inDelta, 'must', 'beCloseTo');
-infectAnAssertion(assert.inDelta, 'must', 'beWithinDelta');
-infectAnAssertion(assert.inEpsilon, 'must', 'beWithinEpsilon');
-infectAnAssertion(assert.includes, 'must', 'include', 'reverse');
-infectAnAssertion(assert.instanceOf, 'must', 'beInstanceOf');
-infectAnAssertion(assert.typeOf, 'must', 'beTypeOf');
-infectAnAssertion(assert.match, 'must', 'match');
-//infectAnAssertion(assert.operator, 'mustBe', 'reverse');
-infectAnAssertion(assert.respondTo, 'must', 'respondTo', 'reverse');
-infectAnAssertion(assert.same, 'must', 'beSameAs');
-infectAnAssertion(assert.same, 'must', 'be');
-infectAnAssertion(assert.throws, 'must', 'throw');
+infectAnAssertion('assert', 'empty', 'beEmpty', 'unary');
+infectAnAssertion('assert', 'equal', 'equal');
+infectAnAssertion('assert', 'inDelta', 'beCloseTo');
+infectAnAssertion('assert', 'inDelta', 'beWithinDelta');
+infectAnAssertion('assert', 'inEpsilon', 'beWithinEpsilon');
+infectAnAssertion('assert', 'includes', 'include', 'reverse');
+infectAnAssertion('assert', 'instanceOf', 'beInstanceOf');
+infectAnAssertion('assert', 'typeOf', 'beTypeOf');
+infectAnAssertion('assert', 'match', 'match');
+//infectAnAssertion('assert', 'operator', 'is', 'reverse');
+infectAnAssertion('assert', 'respondTo', 'respondTo', 'reverse');
+infectAnAssertion('assert', 'same', 'beSameAs');
+infectAnAssertion('assert', 'same', 'be');
+infectAnAssertion('assert', 'throws', 'throw');
 
-infectAnAssertion(refute.empty, 'wont', 'beEmpty', 'unary');
-infectAnAssertion(refute.equal, 'wont', 'equal');
-infectAnAssertion(refute.inDelta, 'wont', 'beCloseTo');
-infectAnAssertion(refute.inDelta, 'wont', 'beWithinDelta');
-infectAnAssertion(refute.inEpsilon, 'wont', 'beWithinEpsilon');
-infectAnAssertion(refute.includes, 'wont', 'include', 'reverse');
-infectAnAssertion(refute.instanceOf, 'wont', 'beInstanceOf');
-infectAnAssertion(refute.typeOf, 'wont', 'beTypeOf');
-infectAnAssertion(refute.match, 'wont', 'match');
-//infectAnAssertion(refute.operator, 'wont', 'be', 'reverse');
-infectAnAssertion(refute.respondTo, 'wont', 'respondTo', 'reverse');
-infectAnAssertion(refute.same, 'wont', 'beSameAs');
-infectAnAssertion(refute.same, 'wont', 'be');
+infectAnAssertion('refute', 'empty', 'beEmpty', 'unary');
+infectAnAssertion('refute', 'equal', 'equal');
+infectAnAssertion('refute', 'inDelta', 'beCloseTo');
+infectAnAssertion('refute', 'inDelta', 'beWithinDelta');
+infectAnAssertion('refute', 'inEpsilon', 'beWithinEpsilon');
+infectAnAssertion('refute', 'includes', 'include', 'reverse');
+infectAnAssertion('refute', 'instanceOf', 'beInstanceOf');
+infectAnAssertion('refute', 'typeOf', 'beTypeOf');
+infectAnAssertion('refute', 'match', 'match');
+//infectAnAssertion('refute', 'operator', 'is', 'reverse');
+infectAnAssertion('refute', 'respondTo', 'respondTo', 'reverse');
+infectAnAssertion('refute', 'same', 'beSameAs');
+infectAnAssertion('refute', 'same', 'be');
 
 var infect = function (object, name) {
     utils.infectMethod(name, function () {
@@ -290,8 +293,8 @@ module.exports = {
 var nil = null;
 
 var type = function (val) {
-    var _type = typeof val;
-    if (_type === 'object') {
+    var type = typeof val;
+    if (type === 'object') {
         if (val === null)          return 'null';
         if (val instanceof Number) return 'number';
         if (val instanceof String) return 'string';
@@ -310,7 +313,7 @@ var type = function (val) {
     if (Array.isArray(val)) {
         return 'array';
     }
-    return _type;
+    return type;
 };
 
 var empty = function (test) {

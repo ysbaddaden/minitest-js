@@ -1,9 +1,10 @@
-var minitest = require('../lib/minitest');
 require('../lib/minitest/promised');
+require('../lib/minitest/spec');
 
-var AssertionError = minitest.AssertionError;
-var assert = minitest.assert;
-var refute = minitest.refute;
+var AssertionError = require('../lib/minitest').AssertionError;
+var assert = require('../lib/minitest').assert;
+var refute = require('../lib/minitest').refute;
+var expect = require('../lib/minitest').expect;
 
 describe("Promised", function () {
     this.timeout(100);
@@ -18,7 +19,7 @@ describe("Promised", function () {
     }
 
     describe("assert", function () {
-        it("must still test without a promise", function () {
+        it("must still test normally", function () {
             assert(true);
         });
 
@@ -30,7 +31,7 @@ describe("Promised", function () {
             assert.match(/foo/, promise('foobar', done));
         });
 
-        it("must fail to match the resolved promise", function (done) {
+        it("must fail", function (done) {
             assert.throws(AssertionError, promise(function () {
                 assert.match(/baz/, promise('foobar'));
             }, done));
@@ -38,7 +39,7 @@ describe("Promised", function () {
     });
 
     describe("refute", function () {
-        it("must still test without a promise", function () {
+        it("must test normally", function () {
             refute(false);
         });
 
@@ -50,10 +51,42 @@ describe("Promised", function () {
             refute.ok(promise(false, done));
         });
 
-        it("must match the resolved promise", function (done) {
+        it("must fail", function (done) {
             assert.throws(AssertionError, promise(function () {
                 refute.match(/bar/, promise('foobar'));
             }, done));
+        });
+    });
+
+    describe("expect", function () {
+        it("must test normally", function () {
+            expect(true).toEqual(true);
+        });
+
+        it("must test the resolved promise", function (done) {
+            expect(promise(true, done)).toEqual(true);
+        });
+
+        it("must fail", function (done) {
+            expect(promise(function () {
+                expect('foobar').toNotMatch(/bar/);
+            }, done)).toThrow(AssertionError);
+        });
+    });
+
+    describe("spec", function () {
+        it("must test normally", function () {
+            expect(true).mustEqual(true);
+        });
+
+        it("must test the resolved promise", function (done) {
+            promise(true, done).mustEqual(true);
+        });
+
+        it("must fail", function (done) {
+            promise(function () {
+                'foobar'.wontMatch(/bar/);
+            }, done).mustThrow(AssertionError);
         });
     });
 });
