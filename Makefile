@@ -25,5 +25,5 @@ test:
 	$(BIN)/mocha
 
 npm:
-	mv ./lib/*.js .
+	ln -sf ./lib/*.js .
 
