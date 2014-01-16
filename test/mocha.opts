@@ -1,2 +1,4 @@
 --check-leaks
 --globals MT_RESOLVE_PROMISES
+--require ./lib/minitest
+--require ./lib/promised
