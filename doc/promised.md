@@ -73,8 +73,10 @@ require('minitest/promised');
 var assert = require('minitest').assert;
 
 describe("Angular's Homepage", function () {
-    browser.get('http://angularjs.org/');
-    assert.match(/AngularJS/, browser.getTitle());
+    it("has name in title", function () {
+        browser.get('http://angularjs.org/');
+        assert.match(/AngularJS/, browser.getTitle());
+    });
 });
 ```
 

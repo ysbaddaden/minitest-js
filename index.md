@@ -28,7 +28,11 @@ test suite (eg: deep equality).
 ## Install
 
 ```sh
+# Node
 npm install git://github.com/ysbaddaden/minitest-js.git
+
+# Bower
+bower install minitest
 ```
 
 ## Browser Support

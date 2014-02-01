@@ -114,7 +114,8 @@ assert.equal("YES!", meme.will_it_blend());
     </p>
     <div class="content" data-section-content>
 {% highlight javascript %}
-var assert = require("minitest").promised.assert;
+require('minitest/promised');
+var assert = require("minitest").assert;
 
 var deferred = Q.defer();
 assert.equal("YES!", deferred.promise);
