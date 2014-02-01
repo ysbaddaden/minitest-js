@@ -1,0 +1,31 @@
+{
+  "name": "minitest",
+  "main": "minitest.js",
+  "version": "0.1.0",
+  "homepage": "http://ysbaddaden.github.io/minitest-js/",
+  "authors": [
+    "Julien Portalier <julien@portalier.com>"
+  ],
+  "description": "JavaScript port of the Ruby gem",
+  "keywords": [
+    "minitest",
+    "test",
+    "unit",
+    "assert",
+    "refute",
+    "expect",
+    "spec"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "Gruntfile.js",
+    "package.json",
+    "examples",
+    "lib",
+    "node_modules",
+    "test",
+    "tests",
+    "vendor"
+  ]
+}
