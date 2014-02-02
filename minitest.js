@@ -1,17 +1,4 @@
-(function(){var global = this;function debug(){return debug};function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("minitest.js", function(module, exports, require, global){
-var Assertions = require('./minitest/assertions');
-var Expectations = require('./minitest/expectations');
-
-module.exports = {
-    AssertionError: Assertions.AssertionError,
-    assert: Assertions.assert,
-    refute: Assertions.refute,
-    expect: Expectations.expect,
-    Expectations: Expectations,
-    utils: require('./minitest/utils')
-};
-
-});require.register("minitest/assertions.js", function(module, exports, require, global){
+(function(){var global = this;function debug(){return debug};function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("assertions.js", function(module, exports, require, global){
 var utils = require('./utils');
 var nil = null;
 
@@ -197,7 +184,7 @@ module.exports = {
     refute: refute
 };
 
-});require.register("minitest/expectations.js", function(module, exports, require, global){
+});require.register("expectations.js", function(module, exports, require, global){
 var AssertionError = require('./assertions').AssertionError;
 var assertions = require('./assertions');
 var utils = require('./utils');
@@ -289,7 +276,20 @@ module.exports = {
     infectAnAssertion: infectAnAssertion
 };
 
-});require.register("minitest/utils.js", function(module, exports, require, global){
+});require.register("minitest.js", function(module, exports, require, global){
+var Assertions = require('./assertions');
+var Expectations = require('./expectations');
+
+module.exports = {
+    AssertionError: Assertions.AssertionError,
+    assert: Assertions.assert,
+    refute: Assertions.refute,
+    expect: Expectations.expect,
+    Expectations: Expectations,
+    utils: require('./utils')
+};
+
+});require.register("utils.js", function(module, exports, require, global){
 var nil = null;
 
 var type = function (val) {

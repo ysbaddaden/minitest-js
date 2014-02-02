@@ -4,14 +4,14 @@
 BIN = `npm bin`
 
 MAIN     = lib/minitest.js \
-	       lib/minitest/utils.js \
-	       lib/minitest/assertions.js \
-	       lib/minitest/expectations.js
-PROMISED = lib/minitest/promised.js
-SPEC     = lib/minitest/spec.js
-MOCK     = lib/minitest/mock.js
-STUB     = lib/minitest/stub.js
-SPY      = lib/minitest/spy.js
+	       lib/utils.js \
+	       lib/assertions.js \
+	       lib/expectations.js
+PROMISED = lib/promised.js
+SPEC     = lib/spec.js
+MOCK     = lib/mock.js
+STUB     = lib/stub.js
+SPY      = lib/spy.js
 
 all:
 	$(BIN)/browserbuild -g minitest -b lib/ -m minitest $(MAIN) > minitest.js
