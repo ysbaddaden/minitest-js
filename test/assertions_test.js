@@ -328,6 +328,18 @@ describe("Assertions", function () {
                 assert.failure(function () { assert.respondTo(Test.prototype, 'property'); });
             });
         });
+
+        it(".null", function () {
+            assert["null"](null);
+            var e = assert.failure(function () { assert["null"](undefined); });
+            assert.equal("Expected undefined to be null.", e.message);
+        });
+
+        it(".undefined", function () {
+            assert["undefined"](undefined);
+            var e = assert.failure(function () { assert["undefined"](null); });
+            assert.equal("Expected null to be undefined.", e.message);
+        });
     });
 
     describe("refute", function () {
@@ -485,6 +497,18 @@ describe("Assertions", function () {
             it("must be a function", function () {
                 refute.respondTo(Test.prototype, 'property');
             });
+        });
+
+        it(".null", function () {
+            refute["null"](undefined);
+            var e = assert.failure(function () { refute["null"](null); });
+            assert.equal("Expected null to not be null.", e.message);
+        });
+
+        it(".undefined", function () {
+            refute["undefined"](null);
+            var e = assert.failure(function () { refute["undefined"](undefined); });
+            assert.equal("Expected undefined to not be undefined.", e.message);
         });
     });
 

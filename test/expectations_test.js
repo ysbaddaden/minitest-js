@@ -155,6 +155,26 @@ describe("Expectations", function () {
             assert.throws(AssertionError, function () { expect(1).toNotEqual(1); });
         });
 
+        it(".toBeNull", function () {
+            expect(null).toBeNull();
+            assert.throws(AssertionError, function () { expect(undefined).toBeNull(); });
+        });
+
+        it(".toNotBeNull", function () {
+            expect(undefined).toNotBeNull();
+            assert.throws(AssertionError, function () { expect(null).toNotBeNull(); });
+        });
+
+        it(".toBeUndefined", function () {
+            expect(undefined).toBeUndefined();
+            assert.throws(AssertionError, function () { expect(null).toBeUndefined(); });
+        });
+
+        it(".toNotBeUndefined", function () {
+            expect(null).toNotBeUndefined();
+            assert.throws(AssertionError, function () { expect(undefined).toNotBeUndefined(); });
+        });
+
         it(".toBeWithinDelta", function () {
             expect(0).toBeWithinDelta(1.0 / 1000);
             assert.throws(AssertionError, function () { expect(0).toBeWithinDelta(1.0 / 999); });
