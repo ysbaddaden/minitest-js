@@ -1,7 +1,7 @@
 {
   "name": "minitest",
   "main": "minitest.js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "http://ysbaddaden.github.io/minitest-js/",
   "authors": [
     "Julien Portalier <julien@portalier.com>"

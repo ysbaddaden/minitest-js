@@ -1,6 +1,6 @@
 {
   "name": "minitest",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A JavaScript port of the minitest ruby gem",
   "keywords": ["minitest", "test", "unit", "assert", "expect", "tdd", "bdd"],
   "author": "Julien Portalier <julien@portalier.com>",

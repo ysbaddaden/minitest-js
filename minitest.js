@@ -101,12 +101,12 @@ refute.empty = function (test, msg) {
 };
 
 assert.includes = function (collection, obj, msg) {
-    return refute(collection.indexOf(obj) === -1,
+    return refute(utils.arrayFrom(collection).indexOf(obj) === -1,
         utils.message(msg, "Expected %{collection} to include %{obj}", { collection: collection, obj: obj }));
 };
 
 refute.includes = function (collection, obj, msg) {
-    return assert(collection.indexOf(obj) === -1,
+    return assert(utils.arrayFrom(collection).indexOf(obj) === -1,
         utils.message(msg, "Expected %{collection} to not include %{obj}", { collection: collection, obj: obj }));
 };
 
@@ -518,11 +518,16 @@ var infectMethod = function (property, fn) {
     }
 };
 
+var arrayFrom = Array.from || function (obj) {
+  return Array.prototype.slice.call(obj);
+};
+
 module.exports = {
     deepEqual: deepEqual,
     argsEqual: argsEqual,
     empty: empty,
     type: type,
+    arrayFrom: arrayFrom,
 
     interpolate: interpolate,
     message: message,
