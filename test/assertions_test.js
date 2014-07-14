@@ -139,6 +139,10 @@ describe("Assertions", function () {
 
         describe("includes", function () {
             it("must pass", function () { assert.includes([1, 2, 3], 2); });
+            it("must accept array-like objects", function () {
+              assert.includes({ 0: "test", length: 1 }, "test");
+            });
+
             it("must fail", function () {
                 var e = assert.failure(function () { assert.includes([true], false); });
                 assert.equal("Expected [true] to include false.", e.message);
