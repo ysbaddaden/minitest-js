@@ -65,6 +65,42 @@ refute.equal = function (expected, actual, msg) {
     return true;
 };
 
+assert['null'] = function (actual, msg) {
+    if (actual !== null) {
+        throw new AssertionError(
+            utils.message(msg, "Expected %{act} to be null", { act: actual }, ""),
+            actual);
+    }
+    return true;
+};
+
+refute['null'] = function (actual, msg) {
+    if (actual === null) {
+        throw new AssertionError(
+            utils.message(msg, "Expected %{act} to not be null", { act: actual }, ""),
+            actual);
+    }
+    return true;
+};
+
+assert['undefined'] = function (actual, msg) {
+    if (actual !== undefined) {
+        throw new AssertionError(
+            utils.message(msg, "Expected %{act} to be undefined", { act: actual }, ""),
+            actual);
+    }
+    return true;
+};
+
+refute['undefined'] = function (actual, msg) {
+    if (actual === undefined) {
+        throw new AssertionError(
+            utils.message(msg, "Expected %{act} to not be undefined", { act: actual }, ""),
+            actual);
+    }
+    return true;
+};
+
 assert.inDelta = function (expected, actual, delta, msg) {
     if (delta == nil) delta = 0.001;
     var n = Math.abs(expected - actual);
@@ -226,6 +262,8 @@ var infectAnAssertion = function (type, assertName, name, dontFlip) {
 
 infectAnAssertion('assert', 'empty', 'beEmpty', 'unary');
 infectAnAssertion('assert', 'equal', 'equal');
+infectAnAssertion('assert', 'null', 'beNull');
+infectAnAssertion('assert', 'undefined', 'beUndefined');
 infectAnAssertion('assert', 'inDelta', 'beCloseTo');
 infectAnAssertion('assert', 'inDelta', 'beWithinDelta');
 infectAnAssertion('assert', 'inEpsilon', 'beWithinEpsilon');
@@ -241,6 +279,8 @@ infectAnAssertion('assert', 'throws', 'throw');
 
 infectAnAssertion('refute', 'empty', 'beEmpty', 'unary');
 infectAnAssertion('refute', 'equal', 'equal');
+infectAnAssertion('refute', 'null', 'beNull');
+infectAnAssertion('refute', 'undefined', 'beUndefined');
 infectAnAssertion('refute', 'inDelta', 'beCloseTo');
 infectAnAssertion('refute', 'inDelta', 'beWithinDelta');
 infectAnAssertion('refute', 'inEpsilon', 'beWithinEpsilon');
