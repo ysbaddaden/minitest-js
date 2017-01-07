@@ -1,7 +1,7 @@
 # minitest.js
 
 A port of Ruby's [minitest](https://github.com/seattlerb/minitest) assertions to
-JavaScript, ready to be consumed with [mocha](http://visionmedia.github.io/mocha)
+JavaScript, ready to be consumed with [mocha](http://mochajs.org/)
 (or another runner).
 
 Since mocha provides the necessary framework to run tests, this port of minitest
